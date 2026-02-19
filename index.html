@@ -1,0 +1,1994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iHoB Global — International House of Bread Ministries</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9922A;
+    --gold-light: #F0C060;
+    --gold-pale: #FAE8B0;
+    --deep: #0A0604;
+    --dark: #110C05;
+    --mid: #1E1508;
+    --warm: #2A1F0E;
+    --text: #EDE0C8;
+    --muted: #9A8870;
+    --red-heat: #E63030;
+    --orange-heat: #F07030;
+    --teal-cool: #30C0A0;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  /* ── GRAIN OVERLAY ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: linear-gradient(to bottom, rgba(10,6,4,0.97) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(201,146,42,0.12);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-decoration: none;
+  }
+
+  .nav-emblem {
+    width: 42px;
+    height: 42px;
+  }
+
+  .nav-wordmark {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.15em;
+    line-height: 1.1;
+  }
+
+  .nav-wordmark span {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+
+  .nav-links a:hover { color: var(--gold-light); }
+
+  .nav-cta {
+    background: linear-gradient(135deg, var(--gold), #8A5A10);
+    color: var(--deep) !important;
+    font-weight: 700 !important;
+    padding: 10px 22px;
+    border-radius: 2px;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    padding: 120px 40px 80px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,146,42,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,146,42,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 80% 20%, rgba(201,146,42,0.05) 0%, transparent 60%);
+  }
+
+  .hero-particles {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+  }
+
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 1s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.5rem, 7vw, 6.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--gold-light);
+    text-shadow: 0 0 80px rgba(201,146,42,0.3), 0 4px 20px rgba(0,0,0,0.8);
+    animation: fadeUp 1s 0.2s ease both;
+    margin-bottom: 8px;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    color: var(--muted);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    animation: fadeUp 1s 0.4s ease both;
+    margin-bottom: 40px;
+  }
+
+  .hero-taglines {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+    animation: fadeUp 1s 0.6s ease both;
+  }
+
+  .tagline-pill {
+    background: rgba(201,146,42,0.1);
+    border: 1px solid rgba(201,146,42,0.25);
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-pale);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 64px;
+    justify-content: center;
+    animation: fadeUp 1s 0.8s ease both;
+    margin-bottom: 56px;
+  }
+
+  .stat {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: block;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .hero-cta-group {
+    display: flex;
+    gap: 16px;
+    animation: fadeUp 1s 1s ease both;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--deep);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(201,146,42,0.4);
+  }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border: 1px solid rgba(201,146,42,0.4);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+
+  .btn-secondary:hover {
+    background: rgba(201,146,42,0.08);
+    border-color: var(--gold);
+  }
+
+  .scroll-line {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    animation: fadeUp 1s 1.5s ease both;
+  }
+
+  .scroll-line::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMONS ── */
+  section { position: relative; }
+
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--gold-pale);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+
+  .section-body {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: var(--muted);
+    max-width: 600px;
+  }
+
+  .divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    margin: 20px 0;
+  }
+
+  /* ── MISSION PILLARS ── */
+  #pillars {
+    padding: 120px 48px;
+    background: var(--dark);
+  }
+
+  .pillars-header { text-align: center; margin-bottom: 80px; }
+  .pillars-header .divider { margin: 20px auto; }
+  .pillars-header .section-body { margin: 0 auto; text-align: center; }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .pillar {
+    background: var(--mid);
+    padding: 56px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+  }
+
+  .pillar::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+
+  .pillar:hover::before { transform: scaleX(1); }
+  .pillar:hover { background: var(--warm); transform: translateY(-4px); }
+
+  .pillar-icon {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 28px;
+  }
+
+  .pillar-num {
+    font-family: 'Cinzel', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: rgba(201,146,42,0.1);
+    position: absolute;
+    top: 20px;
+    right: 24px;
+    line-height: 1;
+  }
+
+  .pillar h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 12px;
+    letter-spacing: 0.05em;
+  }
+
+  .pillar p {
+    font-size: 0.9rem;
+    line-height: 1.8;
+    color: var(--muted);
+  }
+
+  .pillar-vs {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  /* ── LIVE HEAT MAP ── */
+  #heatmap {
+    padding: 120px 48px;
+    background: var(--deep);
+  }
+
+  .heatmap-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+    max-width: 1300px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .map-container {
+    position: relative;
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+
+  .map-svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .live-badge {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10,6,4,0.85);
+    border: 1px solid rgba(230,48,48,0.4);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #FF6060;
+  }
+
+  .live-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--red-heat);
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+
+  .map-legend {
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    background: rgba(10,6,4,0.85);
+    border: 1px solid rgba(201,146,42,0.2);
+    padding: 12px 16px;
+    border-radius: 4px;
+  }
+
+  .legend-title {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .legend-scale {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.65rem;
+    color: var(--muted);
+  }
+
+  .legend-gradient {
+    width: 80px;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, #1a3a2a, #30C0A0, #F07030, #E63030);
+  }
+
+  /* ── TESTIMONY FEED ── */
+  .testimony-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .feed-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .feed-header h3 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--gold-light);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .feed-count {
+    font-size: 0.7rem;
+    color: var(--muted);
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.2);
+    padding: 4px 10px;
+    border-radius: 100px;
+  }
+
+  .testimony-card {
+    background: var(--mid);
+    border-left: 3px solid var(--gold);
+    padding: 20px 24px;
+    margin-bottom: 2px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+    animation: slideIn 0.5s ease both;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .testimony-card:hover {
+    background: var(--warm);
+    border-left-color: var(--gold-light);
+  }
+
+  .testimony-card.heat-hot { border-left-color: var(--red-heat); }
+  .testimony-card.heat-warm { border-left-color: var(--orange-heat); }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .card-location {
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .card-dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
+
+  .card-time {
+    font-size: 0.68rem;
+    color: var(--muted);
+  }
+
+  .card-new {
+    margin-left: auto;
+    font-size: 0.6rem;
+    background: rgba(230,48,48,0.15);
+    border: 1px solid rgba(230,48,48,0.3);
+    color: #FF8080;
+    padding: 2px 8px;
+    border-radius: 100px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .card-text {
+    font-size: 0.88rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+
+  .card-category {
+    margin-top: 10px;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  /* ── FIND YOUR NETWORK ── */
+  #find-network {
+    padding: 120px 48px;
+    background: var(--dark);
+  }
+
+  .finder-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  .country-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+    max-height: 420px;
+    overflow-y: auto;
+    padding-right: 8px;
+  }
+
+  .country-grid::-webkit-scrollbar { width: 4px; }
+  .country-grid::-webkit-scrollbar-track { background: var(--mid); }
+  .country-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+  .country-btn {
+    background: var(--mid);
+    border: 1px solid transparent;
+    color: var(--muted);
+    font-size: 0.72rem;
+    padding: 10px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    letter-spacing: 0.05em;
+    border-radius: 2px;
+    font-family: 'Lato', sans-serif;
+  }
+
+  .country-btn:hover, .country-btn.active {
+    background: var(--warm);
+    border-color: var(--gold);
+    color: var(--gold-light);
+  }
+
+  .country-btn.has-network::after {
+    content: '●';
+    display: block;
+    font-size: 0.45rem;
+    color: var(--teal-cool);
+    margin-top: 2px;
+  }
+
+  .finder-right { }
+
+  .search-box {
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.2);
+    display: flex;
+    align-items: center;
+    padding: 16px 20px;
+    gap: 12px;
+    margin-bottom: 16px;
+    transition: border-color 0.3s;
+  }
+
+  .search-box:focus-within { border-color: var(--gold); }
+
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.95rem;
+    flex: 1;
+  }
+
+  .search-box input::placeholder { color: var(--muted); }
+
+  .search-icon { color: var(--muted); font-size: 1rem; }
+
+  .network-result {
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.15);
+    padding: 28px;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .result-found {
+    display: none;
+  }
+
+  .result-found.active { display: flex; flex-direction: column; gap: 12px; }
+
+  .network-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(48,192,160,0.1);
+    border: 1px solid rgba(48,192,160,0.3);
+    color: var(--teal-cool);
+    padding: 6px 14px;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 2px;
+    width: fit-content;
+  }
+
+  .network-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.3rem;
+    color: var(--gold-light);
+  }
+
+  .network-info {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  .network-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
+  }
+
+  .result-pioneer {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .result-pioneer.active { display: flex; }
+
+  .pioneer-icon {
+    font-size: 2rem;
+    color: var(--gold);
+  }
+
+  .pioneer-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--gold-pale);
+  }
+
+  .pioneer-text {
+    font-size: 0.88rem;
+    line-height: 1.7;
+    color: var(--muted);
+  }
+
+  .result-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    height: 100%;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+
+  .result-empty .empty-icon { font-size: 2.5rem; opacity: 0.3; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(10,6,4,0.92);
+    z-index: 2000;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    backdrop-filter: blur(6px);
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--dark);
+    border: 1px solid rgba(201,146,42,0.25);
+    padding: 48px;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+    animation: modalIn 0.4s ease both;
+  }
+
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.95) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .modal-close:hover { color: var(--gold-light); }
+
+  .modal-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--gold-light);
+    margin-bottom: 8px;
+  }
+
+  .modal-subtitle {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .form-group { margin-bottom: 20px; }
+
+  .form-group label {
+    display: block;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.2);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-size: 0.9rem;
+    padding: 14px 16px;
+    outline: none;
+    transition: border-color 0.3s;
+    resize: vertical;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    border-color: var(--gold);
+  }
+
+  .form-group select { appearance: none; }
+
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  /* ── ABOUT / ETHOS ── */
+  #ethos {
+    padding: 120px 48px;
+    background: var(--deep);
+  }
+
+  .ethos-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    max-width: 1200px;
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  .ethos-visual {
+    position: relative;
+    aspect-ratio: 4/5;
+    background: var(--mid);
+  }
+
+  .ethos-quote-card {
+    position: absolute;
+    bottom: -24px;
+    right: -24px;
+    background: var(--gold);
+    padding: 28px 32px;
+    max-width: 280px;
+  }
+
+  .quote-text {
+    font-family: 'Cinzel', serif;
+    font-size: 1.1rem;
+    color: var(--deep);
+    line-height: 1.4;
+    font-weight: 600;
+  }
+
+  .quote-source {
+    font-size: 0.7rem;
+    color: rgba(10,6,4,0.6);
+    margin-top: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+  }
+
+  .ethos-graphic {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 8rem;
+    color: rgba(201,146,42,0.15);
+  }
+
+  .value-list { margin-top: 32px; }
+
+  .value-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(201,146,42,0.08);
+  }
+
+  .value-num {
+    font-family: 'Cinzel', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: rgba(201,146,42,0.25);
+    min-width: 36px;
+    line-height: 1;
+    margin-top: 4px;
+  }
+
+  .value-content h4 {
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    color: var(--gold-pale);
+    margin-bottom: 6px;
+  }
+
+  .value-content p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+
+  /* ── NETWORK LOCATIONS ── */
+  #locations {
+    padding: 120px 48px;
+    background: var(--dark);
+  }
+
+  .locations-header { text-align: center; margin-bottom: 72px; }
+  .locations-header .divider { margin: 20px auto; }
+
+  .locations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 2px;
+    max-width: 1300px;
+    margin: 0 auto 48px;
+  }
+
+  .location-card {
+    background: var(--mid);
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s;
+    cursor: pointer;
+  }
+
+  .location-card:hover {
+    background: var(--warm);
+    transform: translateY(-2px);
+  }
+
+  .location-card.hq {
+    background: linear-gradient(135deg, #1E1508 0%, #2a1d08 100%);
+    border: 1px solid rgba(201,146,42,0.3);
+  }
+
+  .location-flag {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .location-ihob {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .location-name {
+    font-family: 'Cinzel', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--gold-pale);
+    margin-bottom: 8px;
+  }
+
+  .location-meta {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .location-hq-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--gold);
+    color: var(--deep);
+    font-size: 0.58rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 4px 8px;
+    font-weight: 700;
+  }
+
+  .location-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 12px;
+    font-size: 0.7rem;
+    color: var(--teal-cool);
+  }
+
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    background: var(--teal-cool);
+    border-radius: 50%;
+    animation: livePulse 2s ease-in-out infinite;
+  }
+
+  /* ── SHARE TESTIMONY ── */
+  #share {
+    padding: 120px 48px;
+    background: var(--mid);
+    text-align: center;
+  }
+
+  .share-inner {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  .share-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(201,146,42,0.08) 0%, transparent 70%);
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--deep);
+    border-top: 1px solid rgba(201,146,42,0.1);
+    padding: 80px 48px 40px;
+  }
+
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 48px;
+    max-width: 1200px;
+    margin: 0 auto 64px;
+  }
+
+  .footer-brand .nav-wordmark {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+    display: block;
+  }
+
+  .footer-text {
+    font-size: 0.85rem;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 280px;
+  }
+
+  .footer-heading {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 20px;
+  }
+
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 12px; }
+  .footer-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.85rem;
+    transition: color 0.2s;
+  }
+  .footer-links a:hover { color: var(--gold-light); }
+
+  .footer-bottom {
+    border-top: 1px solid rgba(201,146,42,0.08);
+    padding-top: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .footer-hq {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  .hq-flag { font-size: 1rem; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+    .heatmap-layout { grid-template-columns: 1fr; }
+    .finder-layout { grid-template-columns: 1fr; gap: 40px; }
+    .ethos-layout { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+  }
+
+  @media (max-width: 640px) {
+    #pillars, #heatmap, #find-network, #ethos, #locations, #share { padding: 80px 24px; }
+    .hero-stats { gap: 32px; }
+    .country-grid { grid-template-columns: repeat(3, 1fr); }
+    .footer-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+
+  /* ── PULSE ANIMATIONS for heat map dots ── */
+  .heat-pulse {
+    animation: heatPulse 3s ease-in-out infinite;
+  }
+
+  @keyframes heatPulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  .btn-sm {
+    background: none;
+    border: 1px solid rgba(201,146,42,0.3);
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 10px 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .btn-sm:hover {
+    background: rgba(201,146,42,0.1);
+    border-color: var(--gold);
+  }
+
+  .btn-pioneer {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--deep);
+    font-family: 'Cinzel', serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    padding: 12px 22px;
+    border: none;
+    cursor: pointer;
+    font-weight: 700;
+    transition: all 0.3s;
+  }
+
+  .btn-pioneer:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(201,146,42,0.35);
+  }
+
+  /* counter animations */
+  .counter { transition: all 0.5s ease; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-emblem" viewBox="0 0 42 42" fill="none">
+      <circle cx="21" cy="21" r="20" stroke="#C9922A" stroke-width="1.5" opacity="0.4"/>
+      <path d="M21 8 C21 8, 30 14, 30 22 C30 28, 25.5 33, 21 34 C16.5 33, 12 28, 12 22 C12 14, 21 8, 21 8Z" fill="rgba(201,146,42,0.15)" stroke="#C9922A" stroke-width="1.2"/>
+      <path d="M17 22 Q21 17 25 22" stroke="#F0C060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="21" cy="22" r="2" fill="#F0C060"/>
+    </svg>
+    <div class="nav-wordmark">
+      iHoB Global
+      <span>International House of Bread Ministries</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#pillars">Our Mission</a></li>
+    <li><a href="#heatmap">Live Exploits</a></li>
+    <li><a href="#find-network">Find a Network</a></li>
+    <li><a href="#locations">Locations</a></li>
+    <li><a href="#share">Share Testimony</a></li>
+    <li><a href="#" class="nav-cta" onclick="openModal('join')">Join iHoB</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="particles"></div>
+
+  <div class="hero-eyebrow">Lagos · Global · Every Nation</div>
+  <h1 class="hero-title">International<br>House of Bread</h1>
+  <p class="hero-subtitle">Ministries · iHoB Global</p>
+
+  <div class="hero-taglines">
+    <span class="tagline-pill">Goers, not Doers</span>
+    <span class="tagline-pill">Demonstrators, not Spectators</span>
+    <span class="tagline-pill">Practitioners, not Believers alone</span>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num counter" data-target="87">87</span>
+      <div class="stat-label">Nations</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num counter" data-target="340">340+</span>
+      <div class="stat-label">Active Networks</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num counter" data-target="12400">12.4k</span>
+      <div class="stat-label">Practitioners</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num counter" data-target="3291">3.2k+</span>
+      <div class="stat-label">Testimonies Filed</div>
+    </div>
+  </div>
+
+  <div class="hero-cta-group">
+    <a href="#find-network" class="btn-primary">Find Your Network →</a>
+    <a href="#heatmap" class="btn-secondary">Watch the Exploits</a>
+  </div>
+
+  <div class="scroll-line">Scroll</div>
+</section>
+
+<!-- MISSION PILLARS -->
+<section id="pillars">
+  <div class="pillars-header">
+    <div class="section-label">The iHoB Ethos</div>
+    <h2 class="section-title">Not Spectators.<br>Practitioners.</h2>
+    <div class="divider"></div>
+    <p class="section-body">We exist to raise a global community of believers who don't merely attend church — they are the Church in motion. Every member is an agent of the God-life, demonstrating heaven's reality in their city.</p>
+  </div>
+
+  <div class="pillars-grid">
+    <div class="pillar">
+      <div class="pillar-num">01</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <path d="M28 8 L44 20 L44 36 L28 48 L12 36 L12 20 Z" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M28 8 L28 48 M12 20 L44 36 M44 20 L12 36" stroke="#C9922A" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="28" cy="28" r="4" fill="#F0C060"/>
+      </svg>
+      <span class="pillar-vs">Goers · not Doers</span>
+      <h3>We Go, We Don't Just Go Through Motions</h3>
+      <p>Every practitioner is sent into their sphere — marketplace, neighbourhood, campus — as a carrier of the Kingdom. We don't wait for revival; we are it.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="18" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M28 14 L28 28 L38 22" stroke="#F0C060" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="28" cy="28" r="4" fill="rgba(201,146,42,0.4)" stroke="#C9922A" stroke-width="1"/>
+        <path d="M16 40 Q28 34 40 40" stroke="#C9922A" stroke-width="1" opacity="0.5" fill="none"/>
+      </svg>
+      <span class="pillar-vs">Demonstrators · not Spectators</span>
+      <h3>We Demonstrate the God Life</h3>
+      <p>Signs, wonders and transformed lives aren't a show — they are our normal. The God-life is not theory; it is daily, documented, and infectious.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <rect x="10" y="18" width="36" height="24" rx="2" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M10 26 L46 26" stroke="#C9922A" stroke-width="0.8" opacity="0.5"/>
+        <path d="M20 32 L36 32" stroke="#F0C060" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28 14 L28 18" stroke="#C9922A" stroke-width="1.5"/>
+        <circle cx="28" cy="12" r="3" fill="#C9922A"/>
+      </svg>
+      <span class="pillar-vs">Practitioners · not mere Believers</span>
+      <h3>We Practice What We Preach</h3>
+      <p>Faith without works is not faith. Every iHoB network is a practitioner community: praying, acting, recording, reporting — fuel for the global fire.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE HEAT MAP -->
+<section id="heatmap">
+  <div style="max-width:1300px; margin: 0 auto;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:20px;">
+      <div>
+        <div class="section-label">Live · Global · Now</div>
+        <h2 class="section-title">The Exploits Are<br>Happening Now</h2>
+        <div class="divider"></div>
+        <p class="section-body" style="max-width:480px;">Every testimony submitted from any iHoB network around the world appears here in real time. Let what God is doing in Lagos fuel your faith in London, and what's happening in Atlanta ignite Lusaka.</p>
+      </div>
+      <button class="btn-primary" onclick="openModal('testimony')" style="height:fit-content;">+ Submit a Testimony</button>
+    </div>
+  </div>
+
+  <div class="heatmap-layout">
+    <!-- SVG World Map -->
+    <div class="map-container">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        Live Feed
+      </div>
+      <svg class="map-svg" viewBox="0 0 900 500" id="worldMap">
+        <!-- Simplified world map paths -->
+        <rect width="900" height="500" fill="#110C05"/>
+        <!-- Grid lines -->
+        <g stroke="rgba(201,146,42,0.06)" stroke-width="0.5">
+          <line x1="0" y1="125" x2="900" y2="125"/>
+          <line x1="0" y1="250" x2="900" y2="250"/>
+          <line x1="0" y1="375" x2="900" y2="375"/>
+          <line x1="225" y1="0" x2="225" y2="500"/>
+          <line x1="450" y1="0" x2="450" y2="500"/>
+          <line x1="675" y1="0" x2="675" y2="500"/>
+        </g>
+        <!-- Simplified continent shapes -->
+        <!-- North America -->
+        <path d="M80 80 L200 70 L240 120 L220 200 L160 240 L100 220 L60 160 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <!-- South America -->
+        <path d="M140 260 L200 250 L230 290 L220 380 L170 400 L130 360 L120 300 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+        <!-- Europe -->
+        <path d="M380 60 L450 55 L470 100 L440 140 L390 140 L360 110 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <!-- Africa -->
+        <path d="M380 150 L450 145 L470 200 L460 300 L420 360 L380 340 L350 280 L360 200 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <!-- Asia -->
+        <path d="M480 60 L700 50 L750 100 L720 180 L650 200 L560 190 L480 150 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+        <!-- Southeast Asia / Oceania -->
+        <path d="M680 220 L760 210 L800 260 L780 310 L720 300 L680 260 Z" fill="rgba(201,146,42,0.07)" stroke="rgba(201,146,42,0.18)" stroke-width="0.8"/>
+        <!-- Australia -->
+        <path d="M700 320 L800 310 L830 360 L800 410 L720 420 L690 380 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+
+        <!-- HEAT DOTS - testimonies (dynamic) -->
+        <!-- Lagos HQ - brightest -->
+        <circle cx="413" cy="248" r="14" fill="rgba(230,48,48,0.2)" class="heat-pulse"/>
+        <circle cx="413" cy="248" r="8" fill="rgba(230,48,48,0.4)" class="heat-pulse"/>
+        <circle cx="413" cy="248" r="4" fill="#E63030"/>
+        <text x="420" y="244" fill="#E63030" font-size="8" font-family="Cinzel,serif" opacity="0.9">HQ Lagos</text>
+
+        <!-- Atlanta -->
+        <circle cx="160" cy="155" r="10" fill="rgba(240,112,48,0.2)" class="heat-pulse"/>
+        <circle cx="160" cy="155" r="5" fill="rgba(240,112,48,0.5)" class="heat-pulse"/>
+        <circle cx="160" cy="155" r="2.5" fill="#F07030"/>
+
+        <!-- London -->
+        <circle cx="390" cy="85" r="9" fill="rgba(240,192,96,0.2)"/>
+        <circle cx="390" cy="85" r="4" fill="rgba(240,192,96,0.5)"/>
+        <circle cx="390" cy="85" r="2" fill="#F0C060"/>
+
+        <!-- Cape Town -->
+        <circle cx="405" cy="335" r="8" fill="rgba(48,192,160,0.2)"/>
+        <circle cx="405" cy="335" r="4" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="405" cy="335" r="2" fill="#30C0A0"/>
+
+        <!-- Nairobi -->
+        <circle cx="452" cy="242" r="9" fill="rgba(240,112,48,0.2)"/>
+        <circle cx="452" cy="242" r="4" fill="rgba(240,112,48,0.4)"/>
+        <circle cx="452" cy="242" r="2" fill="#F07030"/>
+
+        <!-- Lusaka -->
+        <circle cx="435" cy="285" r="7" fill="rgba(48,192,160,0.15)"/>
+        <circle cx="435" cy="285" r="3.5" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="435" cy="285" r="1.8" fill="#30C0A0"/>
+
+        <!-- Mumbai -->
+        <circle cx="570" cy="165" r="8" fill="rgba(240,192,96,0.15)"/>
+        <circle cx="570" cy="165" r="4" fill="rgba(240,192,96,0.4)"/>
+        <circle cx="570" cy="165" r="2" fill="#F0C060"/>
+
+        <!-- Singapore -->
+        <circle cx="660" cy="235" r="7" fill="rgba(230,48,48,0.15)"/>
+        <circle cx="660" cy="235" r="3.5" fill="rgba(230,48,48,0.4)"/>
+        <circle cx="660" cy="235" r="1.8" fill="#E63030"/>
+
+        <!-- Sydney -->
+        <circle cx="790" cy="370" r="7" fill="rgba(48,192,160,0.15)"/>
+        <circle cx="790" cy="370" r="3.5" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="790" cy="370" r="1.8" fill="#30C0A0"/>
+
+        <!-- Toronto -->
+        <circle cx="178" cy="115" r="6" fill="rgba(240,192,96,0.15)"/>
+        <circle cx="178" cy="115" r="3" fill="rgba(240,192,96,0.4)"/>
+        <circle cx="178" cy="115" r="1.5" fill="#F0C060"/>
+
+        <!-- São Paulo -->
+        <circle cx="195" cy="320" r="7" fill="rgba(240,112,48,0.15)"/>
+        <circle cx="195" cy="320" r="3.5" fill="rgba(240,112,48,0.4)"/>
+        <circle cx="195" cy="320" r="1.8" fill="#F07030"/>
+
+        <!-- Berlin -->
+        <circle cx="424" cy="78" r="6" fill="rgba(201,146,42,0.2)"/>
+        <circle cx="424" cy="78" r="3" fill="rgba(201,146,42,0.5)"/>
+        <circle cx="424" cy="78" r="1.5" fill="#C9922A"/>
+
+        <!-- Seoul -->
+        <circle cx="703" cy="118" r="6" fill="rgba(48,192,160,0.15)"/>
+        <circle cx="703" cy="118" r="3" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="703" cy="118" r="1.5" fill="#30C0A0"/>
+      </svg>
+
+      <div class="map-legend">
+        <div class="legend-title">Testimony Intensity</div>
+        <div class="legend-scale">
+          <span>Low</span>
+          <div class="legend-gradient"></div>
+          <span>High</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Testimony Feed -->
+    <div class="testimony-feed">
+      <div class="feed-header">
+        <h3>Latest Testimonies</h3>
+        <span class="feed-count" id="feedCount">24 today</span>
+      </div>
+      <div id="testimonyFeed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FIND YOUR NETWORK -->
+<section id="find-network">
+  <div class="finder-layout">
+    <div>
+      <div class="section-label">You Belong Somewhere</div>
+      <h2 class="section-title">Find Your<br>iHoB Network</h2>
+      <div class="divider"></div>
+      <p class="section-body">Select your country below and search for your city. If a network exists near you, join them. If not — you could be the one to start it.</p>
+      <br><br>
+      <div class="country-grid" id="countryGrid"></div>
+    </div>
+
+    <div class="finder-right">
+      <div style="margin-bottom: 28px;">
+        <div class="section-label" id="selectedCountryLabel">Select a country</div>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-top: 8px;" id="selectedCountryHint">Then search for your city or town below</p>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search city or town..." id="citySearch" oninput="searchCity(this.value)">
+      </div>
+
+      <div class="network-result" id="networkResult">
+        <div class="result-empty" id="emptyState">
+          <div class="empty-icon">🌍</div>
+          <p>Select a country and search your city to find an iHoB network</p>
+        </div>
+        <div class="result-found" id="foundState">
+          <span class="network-tag">✓ Network Found</span>
+          <div class="network-name" id="foundName"></div>
+          <p class="network-info" id="foundInfo"></p>
+          <div class="network-actions">
+            <button class="btn-primary" onclick="openModal('join')" style="font-size:0.72rem;padding:12px 20px;">Join this Network</button>
+            <button class="btn-sm" onclick="openModal('contact')">Contact Leader</button>
+          </div>
+        </div>
+        <div class="result-pioneer" id="pioneerState">
+          <div class="pioneer-icon">🌱</div>
+          <div class="pioneer-title">No Network Here Yet</div>
+          <p class="pioneer-text">There's no iHoB network in your area — but every network started with one person willing to go first. Could you be the pioneer?</p>
+          <div class="network-actions">
+            <button class="btn-pioneer" onclick="openModal('pioneer')">Signify Interest to Pioneer</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ETHOS -->
+<section id="ethos">
+  <div class="ethos-layout">
+    <div class="ethos-visual">
+      <div class="ethos-graphic">🌾</div>
+      <div class="ethos-quote-card">
+        <div class="quote-text">"The harvest is plentiful. The labourers must go."</div>
+        <div class="quote-source">iHoB Global Declaration</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Our Foundation</div>
+      <h2 class="section-title">Rooted in Lagos.<br>Reaching Every Nation.</h2>
+      <div class="divider"></div>
+      <p class="section-body">International House of Bread Ministries was born in Lagos, Nigeria with a singular conviction: that the body of Christ is called to demonstrate the Kingdom in every sphere of life across every nation.</p>
+
+      <div class="value-list">
+        <div class="value-item">
+          <div class="value-num">I</div>
+          <div class="value-content">
+            <h4>One Standard, Every Nation</h4>
+            <p>Every iHoB network — whether iHoB Atlanta, iHoB Cape Town or iHoB Tokyo — carries the same DNA, pursues the same God and operates in the same Spirit.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">II</div>
+          <div class="value-content">
+            <h4>Connected by Testimonies</h4>
+            <p>We believe shared testimonies accelerate corporate faith. What God does in one city is spiritual fuel for every other city in the network.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">III</div>
+          <div class="value-content">
+            <h4>Pioneer Culture</h4>
+            <p>We celebrate those who go first. Every city without a network is an invitation, not a gap. We equip and send pioneers continually.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LOCATIONS -->
+<section id="locations">
+  <div class="locations-header">
+    <div class="section-label">The iHoB Family</div>
+    <h2 class="section-title">Networks Around the Globe</h2>
+    <div class="divider"></div>
+  </div>
+
+  <div class="locations-grid" id="locationsGrid"></div>
+
+  <div style="text-align:center;">
+    <button class="btn-secondary" onclick="openModal('pioneer')">Don't See Your City? Pioneer One →</button>
+  </div>
+</section>
+
+<!-- SHARE TESTIMONY -->
+<section id="share">
+  <div class="share-glow"></div>
+  <div class="share-inner" style="position:relative;">
+    <div class="section-label">Your Story Matters</div>
+    <h2 class="section-title">What Has God Done<br>Through You This Week?</h2>
+    <div class="divider" style="margin: 20px auto;"></div>
+    <p class="section-body" style="margin: 0 auto 40px; text-align:center;">Your testimony is not just your story — it is ammunition for every believer in the network who needs to see that God is active, present and moving. Submit it. Let it fuel the fire.</p>
+    <button class="btn-primary" onclick="openModal('testimony')" style="margin: 0 auto; display: block;">Share Your Testimony →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-wordmark" style="font-size:1.1rem;color:var(--gold-light);margin-bottom:16px;display:block;">
+        iHoB Global
+        <span>International House of Bread Ministries</span>
+      </div>
+      <p class="footer-text">A global network of practitioners — goers, demonstrators and people of the God-life — rooted in Lagos and reaching every nation.</p>
+      <div style="display:flex;gap:12px;margin-top:24px;">
+        <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color 0.2s;" onmouseover="this.style.color='var(--gold-light)'" onmouseout="this.style.color='var(--muted)'">✉</a>
+        <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color 0.2s;" onmouseover="this.style.color='var(--gold-light)'" onmouseout="this.style.color='var(--muted)'">▶</a>
+        <a href="#" style="color:var(--muted);font-size:1.1rem;transition:color 0.2s;" onmouseover="this.style.color='var(--gold-light)'" onmouseout="this.style.color='var(--muted)'">📸</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-heading">Explore</div>
+      <ul class="footer-links">
+        <li><a href="#pillars">Our Mission</a></li>
+        <li><a href="#heatmap">Live Exploits</a></li>
+        <li><a href="#find-network">Find a Network</a></li>
+        <li><a href="#locations">All Locations</a></li>
+        <li><a href="#share">Share Testimony</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Connect</div>
+      <ul class="footer-links">
+        <li><a href="#" onclick="openModal('join')">Join iHoB</a></li>
+        <li><a href="#" onclick="openModal('pioneer')">Pioneer a Network</a></li>
+        <li><a href="#" onclick="openModal('testimony')">Submit Testimony</a></li>
+        <li><a href="#">Partner with Us</a></li>
+        <li><a href="#">Prayer Requests</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Resources</div>
+      <ul class="footer-links">
+        <li><a href="#">iHoB Teachings</a></li>
+        <li><a href="#">Network Leaders Hub</a></li>
+        <li><a href="#">Pioneer Toolkit</a></li>
+        <li><a href="#">Contact Global HQ</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 International House of Bread Ministries. All rights reserved.</span>
+    <div class="footer-hq">
+      <span class="hq-flag">🇳🇬</span>
+      <span>Global HQ · Lagos, Nigeria</span>
+    </div>
+  </div>
+</footer>
+
+<!-- JOIN MODAL -->
+<div class="modal-overlay" id="joinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('join')">✕</button>
+    <div class="modal-title">Join iHoB</div>
+    <p class="modal-subtitle">Register to connect with your local iHoB network and become part of the global practitioner community.</p>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input type="text" placeholder="John"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" placeholder="Adebayo"/></div>
+    </div>
+    <div class="form-group"><label>Email Address</label><input type="email" placeholder="john@email.com"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Country</label><select><option>Nigeria</option><option>Ghana</option><option>USA</option><option>UK</option><option>South Africa</option><option>Zambia</option><option>Kenya</option><option>Germany</option><option>Australia</option><option>Other</option></select></div>
+      <div class="form-group"><label>City</label><input type="text" placeholder="Your city"/></div>
+    </div>
+    <div class="form-group"><label>Network You're Joining</label><input type="text" placeholder="e.g. iHoB Atlanta" id="joiningNetwork"/></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" onclick="alert('Welcome to iHoB! A leader will contact you soon.');closeModal('join')">Register to Join →</button>
+    </div>
+  </div>
+</div>
+
+<!-- PIONEER MODAL -->
+<div class="modal-overlay" id="pioneerModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('pioneer')">✕</button>
+    <div class="modal-title">Pioneer a Network</div>
+    <p class="modal-subtitle">No iHoB network in your area yet? Signify your interest and our Global HQ team will reach out to support, train and commission you.</p>
+    <div class="form-row">
+      <div class="form-group"><label>First Name</label><input type="text" placeholder="Your name"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" placeholder="Your surname"/></div>
+    </div>
+    <div class="form-group"><label>Email Address</label><input type="email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="+1 234 567 8900"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Country</label><input type="text" placeholder="Your country"/></div>
+      <div class="form-group"><label>City / Town</label><input type="text" placeholder="Your city or town"/></div>
+    </div>
+    <div class="form-group"><label>Tell us briefly about yourself</label><textarea rows="3" placeholder="Your background, ministry experience, heart for the community..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-pioneer" onclick="alert('Thank you! iHoB Global HQ will contact you within 48 hours.');closeModal('pioneer')">Signify Interest →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONY MODAL -->
+<div class="modal-overlay" id="testimonyModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('testimony')">✕</button>
+    <div class="modal-title">Share Your Testimony</div>
+    <p class="modal-subtitle">Your exploit will be published on the global live feed to inspire practitioners across every time zone.</p>
+    <div class="form-row">
+      <div class="form-group"><label>Your Name</label><input type="text" placeholder="(Optional — can be anonymous)"/></div>
+      <div class="form-group"><label>iHoB Network</label><input type="text" placeholder="e.g. iHoB Cape Town"/></div>
+    </div>
+    <div class="form-group"><label>Category</label>
+      <select>
+        <option>Healing & Miracles</option>
+        <option>Salvation & Deliverance</option>
+        <option>Supernatural Provision</option>
+        <option>Marketplace Exploits</option>
+        <option>Signs & Wonders</option>
+        <option>Answered Prayer</option>
+        <option>Evangelism Breakthrough</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Your Testimony</label><textarea rows="5" placeholder="Describe what God did through you. Be specific — specific testimonies carry specific faith..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" onclick="submitTestimony()">Publish to Global Feed →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('contact')">✕</button>
+    <div class="modal-title">Contact Network Leader</div>
+    <p class="modal-subtitle">Send a message to the leader of this iHoB network. They'll get back to you promptly.</p>
+    <div class="form-group"><label>Your Name</label><input type="text" placeholder="Your full name"/></div>
+    <div class="form-group"><label>Email Address</label><input type="email" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Message</label><textarea rows="4" placeholder="Introduce yourself and how you'd like to connect..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" onclick="alert('Message sent! The network leader will be in touch.');closeModal('contact')">Send Message →</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── PARTICLES ──
+(function() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.width = p.style.height = (Math.random() * 3 + 1) + 'px';
+    p.style.animationDuration = (Math.random() * 15 + 8) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    container.appendChild(p);
+  }
+})();
+
+// ── MODAL ──
+function openModal(type) {
+  document.getElementById(type + 'Modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(type) {
+  document.getElementById(type + 'Modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) this.classList.remove('open'), document.body.style.overflow = '';
+  });
+});
+
+// ── TESTIMONY FEED DATA ──
+const testimonies = [
+  { loc: 'iHoB Lagos, Nigeria', time: '2 min ago', text: 'A woman in our neighbourhood meeting was completely healed of hypertension — the nurse confirmed it. The doctors called it inexplicable.', category: 'Healing & Miracles', heat: 'hot', isNew: true },
+  { loc: 'iHoB Atlanta, USA', time: '17 min ago', text: 'Led three colleagues to Christ during lunch break today. What started as casual conversation became a divine appointment.', category: 'Evangelism Breakthrough', heat: 'warm', isNew: true },
+  { loc: 'iHoB Cape Town, SA', time: '34 min ago', text: 'Our street evangelism team prayed for a man with a broken arm and the pain left immediately. He joined us for two more hours!', category: 'Signs & Wonders', heat: '', isNew: false },
+  { loc: 'iHoB Nairobi, Kenya', time: '1 hr ago', text: 'A businessman in our network received a supernatural turnaround — a contract that was cancelled was reinstated with a 3x increase.', category: 'Supernatural Provision', heat: 'warm', isNew: false },
+  { loc: 'iHoB London, UK', time: '2 hrs ago', text: 'A woman came to Sunday Connect visibly troubled. She left free. Six years of depression — lifted in a single moment of ministry.', category: 'Salvation & Deliverance', heat: '', isNew: false },
+  { loc: 'iHoB Mumbai, India', time: '3 hrs ago', text: 'A family that had been trying to conceive for 9 years called us this morning — twins confirmed! God answers prayer.', category: 'Answered Prayer', heat: '', isNew: false },
+];
+
+function renderTestimonies() {
+  const feed = document.getElementById('testimonyFeed');
+  feed.innerHTML = '';
+  testimonies.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = `testimony-card ${t.heat ? 'heat-' + t.heat : ''}`;
+    card.style.animationDelay = (i * 0.1) + 's';
+    card.innerHTML = `
+      <div class="card-meta">
+        <span class="card-location">${t.loc}</span>
+        <div class="card-dot"></div>
+        <span class="card-time">${t.time}</span>
+        ${t.isNew ? '<span class="card-new">New</span>' : ''}
+      </div>
+      <div class="card-text">${t.text}</div>
+      <div class="card-category">${t.category}</div>
+    `;
+    feed.appendChild(card);
+  });
+}
+
+renderTestimonies();
+
+// Simulate live update
+setInterval(() => {
+  const count = document.getElementById('feedCount');
+  const num = parseInt(count.textContent) + 1;
+  count.textContent = num + ' today';
+}, 45000);
+
+// ── TESTIMONY SUBMIT ──
+function submitTestimony() {
+  const newTestimony = {
+    loc: 'iHoB Global',
+    time: 'Just now',
+    text: 'A new testimony was just submitted from a practitioner in the global network. Details pending moderation.',
+    category: 'Fresh Testimony',
+    heat: 'hot',
+    isNew: true
+  };
+  testimonies.unshift(newTestimony);
+  if (testimonies.length > 6) testimonies.pop();
+  renderTestimonies();
+  closeModal('testimony');
+  alert('Glory to God! Your testimony has been submitted and will appear on the global feed shortly.');
+}
+
+// ── COUNTRIES ──
+const networkData = {
+  'Nigeria': { cities: { 'Lagos': { name: 'iHoB Lagos', info: 'Global Headquarters · Est. 2010 · 4 weekly gatherings', leader: 'Apostle Emmanuel Adeyemi' }, 'Abuja': { name: 'iHoB Abuja', info: 'Federal Capital Network · Est. 2015 · 2 weekly gatherings', leader: 'Pastor Grace Okonkwo' }, 'Port Harcourt': { name: 'iHoB Port Harcourt', info: 'Rivers State Network · Est. 2018 · 2 weekly gatherings', leader: 'Dr. Chukwu Emmanuel' } } },
+  'USA': { cities: { 'Atlanta': { name: 'iHoB Atlanta', info: 'Southeast USA Network · Est. 2014 · 3 weekly gatherings', leader: 'Pastor David Osei' }, 'New York': { name: 'iHoB New York', info: 'Northeast USA Network · Est. 2016 · 2 weekly gatherings', leader: 'Pastor Miriam Eze' }, 'Houston': { name: 'iHoB Houston', info: 'Texas Network · Est. 2019 · 2 weekly gatherings', leader: 'Deacon Samuel Clarke' } } },
+  'South Africa': { cities: { 'Cape Town': { name: 'iHoB Cape Town', info: 'Western Cape Network · Est. 2013 · 3 weekly gatherings', leader: 'Pastor Ntombi Dlamini' }, 'Johannesburg': { name: 'iHoB Johannesburg', info: 'Gauteng Network · Est. 2012 · 4 weekly gatherings', leader: 'Elder Moses Sithole' } } },
+  'Zambia': { cities: { 'Lusaka': { name: 'iHoB Lusaka', info: 'Zambia National Network · Est. 2017 · 2 weekly gatherings', leader: 'Pastor John Banda' } } },
+  'Kenya': { cities: { 'Nairobi': { name: 'iHoB Nairobi', info: 'East Africa Hub · Est. 2015 · 3 weekly gatherings', leader: 'Apostle Peter Kamau' } } },
+  'UK': { cities: { 'London': { name: 'iHoB London', info: 'UK Network · Est. 2011 · 3 weekly gatherings', leader: 'Pastor Rachel Mensah' }, 'Manchester': { name: 'iHoB Manchester', info: 'Northwest UK Network · Est. 2020 · 1 weekly gathering', leader: 'Pastor Tom Osei' } } },
+  'Germany': { cities: { 'Berlin': { name: 'iHoB Berlin', info: 'Germany Network · Est. 2019 · 2 weekly gatherings', leader: 'Pastor Hans Adeyemi' } } },
+  'India': { cities: { 'Mumbai': { name: 'iHoB Mumbai', info: 'India Western Network · Est. 2021 · 2 weekly gatherings', leader: 'Pastor Priya Samuel' } } },
+  'Australia': { cities: { 'Sydney': { name: 'iHoB Sydney', info: 'Australia Network · Est. 2018 · 2 weekly gatherings', leader: 'Pastor Michael Okonkwo' } } },
+  'Ghana': { cities: { 'Accra': { name: 'iHoB Accra', info: 'Ghana Network · Est. 2016 · 3 weekly gatherings', leader: 'Apostle Kwame Asante' } } },
+  'Canada': { cities: { 'Toronto': { name: 'iHoB Toronto', info: 'Canada Network · Est. 2017 · 2 weekly gatherings', leader: 'Pastor Angela Diop' } } },
+  'Brazil': { cities: { 'São Paulo': { name: 'iHoB São Paulo', info: 'Brazil Network · Est. 2020 · 2 weekly gatherings', leader: 'Pastor Ricardo Oliveira' } } },
+};
+
+const allCountries = [
+  'Nigeria','Ghana','Kenya','South Africa','Zambia','Zimbabwe','Ethiopia','Uganda',
+  'Tanzania','Cameroon','Senegal','Ivory Coast','Rwanda','Mozambique','DR Congo',
+  'USA','Canada','Brazil','UK','Germany','France','Netherlands','Sweden','Norway',
+  'India','Singapore','South Korea','Japan','Malaysia','Philippines','Australia',
+  'New Zealand','UAE','Saudi Arabia','Israel','Portugal','Spain','Italy'
+];
+
+let selectedCountry = null;
+
+function buildCountryGrid() {
+  const grid = document.getElementById('countryGrid');
+  allCountries.forEach(country => {
+    const btn = document.createElement('button');
+    btn.className = 'country-btn' + (networkData[country] ? ' has-network' : '');
+    btn.textContent = country;
+    btn.title = networkData[country] ? 'Network exists!' : 'No network yet';
+    btn.onclick = () => selectCountry(country, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function selectCountry(country, btn) {
+  document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedCountry = country;
+  document.getElementById('selectedCountryLabel').textContent = country;
+  document.getElementById('selectedCountryHint').textContent = networkData[country] ? 
+    'Networks found in ' + country + ' — search your city' : 
+    'No networks yet in ' + country + ' — search to confirm or pioneer one';
+  document.getElementById('citySearch').value = '';
+  showEmptyState();
+}
+
+function searchCity(val) {
+  if (!val || !selectedCountry) return showEmptyState();
+  const data = networkData[selectedCountry];
+  if (!data) return showPioneerState();
+
+  const match = Object.keys(data.cities).find(city => 
+    city.toLowerCase().includes(val.toLowerCase()) || val.toLowerCase().includes(city.toLowerCase().split(' ')[0])
+  );
+
+  if (match) {
+    const network = data.cities[match];
+    document.getElementById('foundName').textContent = network.name;
+    document.getElementById('foundInfo').innerHTML = `<strong style="color:var(--gold-pale)">${match}, ${selectedCountry}</strong><br>${network.info}<br><br><strong>Network Leader:</strong> ${network.leader}`;
+    document.getElementById('joiningNetwork').value = network.name;
+    showFoundState();
+  } else if (val.length >= 3) {
+    showPioneerState();
+  } else {
+    showEmptyState();
+  }
+}
+
+function showEmptyState() {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('foundState').classList.remove('active');
+  document.getElementById('pioneerState').classList.remove('active');
+}
+
+function showFoundState() {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('foundState').classList.add('active');
+  document.getElementById('pioneerState').classList.remove('active');
+}
+
+function showPioneerState() {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('foundState').classList.remove('active');
+  document.getElementById('pioneerState').classList.add('active');
+}
+
+buildCountryGrid();
+
+// ── LOCATIONS GRID ──
+const locations = [
+  { city: 'Lagos', country: 'Nigeria', flag: '🇳🇬', est: '2010', gatherings: '4 weekly', hq: true },
+  { city: 'Johannesburg', country: 'South Africa', flag: '🇿🇦', est: '2012', gatherings: '4 weekly' },
+  { city: 'Cape Town', country: 'South Africa', flag: '🇿🇦', est: '2013', gatherings: '3 weekly' },
+  { city: 'Atlanta', country: 'USA', flag: '🇺🇸', est: '2014', gatherings: '3 weekly' },
+  { city: 'Nairobi', country: 'Kenya', flag: '🇰🇪', est: '2015', gatherings: '3 weekly' },
+  { city: 'Accra', country: 'Ghana', flag: '🇬🇭', est: '2016', gatherings: '3 weekly' },
+  { city: 'Abuja', country: 'Nigeria', flag: '🇳🇬', est: '2015', gatherings: '2 weekly' },
+  { city: 'London', country: 'UK', flag: '🇬🇧', est: '2011', gatherings: '3 weekly' },
+  { city: 'Toronto', country: 'Canada', flag: '🇨🇦', est: '2017', gatherings: '2 weekly' },
+  { city: 'Lusaka', country: 'Zambia', flag: '🇿🇲', est: '2017', gatherings: '2 weekly' },
+  { city: 'Sydney', country: 'Australia', flag: '🇦🇺', est: '2018', gatherings: '2 weekly' },
+  { city: 'Berlin', country: 'Germany', flag: '🇩🇪', est: '2019', gatherings: '2 weekly' },
+  { city: 'Houston', country: 'USA', flag: '🇺🇸', est: '2019', gatherings: '2 weekly' },
+  { city: 'São Paulo', country: 'Brazil', flag: '🇧🇷', est: '2020', gatherings: '2 weekly' },
+  { city: 'Mumbai', country: 'India', flag: '🇮🇳', est: '2021', gatherings: '2 weekly' },
+  { city: 'New York', country: 'USA', flag: '🇺🇸', est: '2016', gatherings: '2 weekly' },
+];
+
+function buildLocations() {
+  const grid = document.getElementById('locationsGrid');
+  locations.forEach(loc => {
+    const card = document.createElement('div');
+    card.className = 'location-card' + (loc.hq ? ' hq' : '');
+    card.innerHTML = `
+      ${loc.hq ? '<div class="location-hq-badge">Global HQ</div>' : ''}
+      <span class="location-flag">${loc.flag}</span>
+      <div class="location-ihob">iHoB</div>
+      <div class="location-name">${loc.city}</div>
+      <div class="location-meta">${loc.country} · Est. ${loc.est}<br>${loc.gatherings}</div>
+      <div class="location-status"><span class="status-dot"></span>Active Network</div>
+    `;
+    card.onclick = () => openModal('join');
+    grid.appendChild(card);
+  });
+}
+
+buildLocations();
+</script>
+</body>
+</html>
