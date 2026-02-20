@@ -1,0 +1,1829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LNI Global — Lehem Network International</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     FIREBASE SDK — Replace the config values with your own from
+     Firebase Console → Project Settings → Your Apps → SDK Setup
+     ═══════════════════════════════════════════════════════════════ -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, collection, addDoc, getDocs, onSnapshot, serverTimestamp, query, orderBy, limit } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+  import { getAnalytics, logEvent } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js';
+
+  // ── YOUR FIREBASE CONFIG ── Replace with your actual config
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID",
+    measurementId: "YOUR_MEASUREMENT_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const analytics = getAnalytics(app);
+
+  // Expose db to global scope so non-module scripts can access
+  window.__db = db;
+  window.__addDoc = addDoc;
+  window.__collection = collection;
+  window.__serverTimestamp = serverTimestamp;
+  window.__onSnapshot = onSnapshot;
+  window.__query = query;
+  window.__orderBy = orderBy;
+  window.__limit = limit;
+  window.__logEvent = logEvent;
+  window.__analytics = analytics;
+
+  // ── LIVE TESTIMONY FEED (Real-time listener) ──
+  const testimonyQuery = query(
+    collection(db, 'testimonies'),
+    orderBy('createdAt', 'desc'),
+    limit(6)
+  );
+
+  onSnapshot(testimonyQuery, (snapshot) => {
+    const testimonies = [];
+    snapshot.forEach(doc => {
+      testimonies.push({ id: doc.id, ...doc.data() });
+    });
+    window.renderLiveTestimonies(testimonies);
+    // Update count badge
+    const countEl = document.getElementById('feedCount');
+    if (countEl) {
+      getDocs(collection(db, 'testimonies')).then(snap => {
+        countEl.textContent = snap.size + ' filed';
+      });
+    }
+  });
+
+  // ── STATS COUNTER from Firestore ──
+  async function loadStats() {
+    try {
+      const [members, testimonies, networks] = await Promise.all([
+        getDocs(collection(db, 'members')),
+        getDocs(collection(db, 'testimonies')),
+        getDocs(collection(db, 'networks')),
+      ]);
+      document.getElementById('statPractitioners').textContent = members.size.toLocaleString();
+      document.getElementById('statTestimonies').textContent = testimonies.size.toLocaleString();
+      document.getElementById('statNetworks').textContent = networks.size + '+';
+    } catch(e) {
+      console.log('Stats using defaults', e.message);
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(loadStats, 800);
+  });
+
+  // ── FORM SUBMISSION FUNCTIONS exposed globally ──
+
+  window.submitJoinForm = async function() {
+    const btn = document.getElementById('joinSubmitBtn');
+    const firstName = document.getElementById('joinFirstName').value.trim();
+    const lastName = document.getElementById('joinLastName').value.trim();
+    const email = document.getElementById('joinEmail').value.trim();
+    const country = document.getElementById('joinCountry').value;
+    const city = document.getElementById('joinCity').value.trim();
+    const network = document.getElementById('joinNetwork').value.trim();
+
+    if (!firstName || !email || !country) {
+      showToast('Please fill in First Name, Email, and Country.', 'error');
+      return;
+    }
+    if (!email.includes('@')) {
+      showToast('Please enter a valid email address.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Registering...';
+
+    try {
+      // Save to Firestore
+      await addDoc(collection(db, 'members'), {
+        firstName, lastName, email, country, city,
+        network: network || 'LNI ' + city,
+        createdAt: serverTimestamp(),
+        status: 'pending'
+      });
+
+      // Send email notifications via EmailJS
+      await window.sendEmailNotification('join', {
+        firstName, lastName, email, country, city, network
+      });
+
+      logEvent(analytics, 'join_network', { country, city });
+
+      showToast('Welcome to LNI! You will now be redirected to our WhatsApp community.', 'success');
+
+      // Close modal and redirect to WhatsApp after short delay
+      setTimeout(() => {
+        closeModal('join');
+        window.open('https://chat.whatsapp.com/K29N9Q2UmI61xwqlCQAWKo?mode=gi_t', '_blank');
+      }, 2000);
+
+    } catch(err) {
+      console.error('Join error:', err);
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Register to Join →';
+    }
+  };
+
+  window.submitPioneerForm = async function() {
+    const btn = document.getElementById('pioneerSubmitBtn');
+    const firstName = document.getElementById('pioneerFirstName').value.trim();
+    const lastName = document.getElementById('pioneerLastName').value.trim();
+    const email = document.getElementById('pioneerEmail').value.trim();
+    const phone = document.getElementById('pioneerPhone').value.trim();
+    const country = document.getElementById('pioneerCountry').value.trim();
+    const city = document.getElementById('pioneerCity').value.trim();
+    const bio = document.getElementById('pioneerBio').value.trim();
+
+    if (!firstName || !email || !country || !city) {
+      showToast('Please fill in First Name, Email, Country, and City.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+
+    try {
+      await addDoc(collection(db, 'pioneers'), {
+        firstName, lastName, email, phone, country, city, bio,
+        createdAt: serverTimestamp(),
+        status: 'reviewing'
+      });
+
+      await window.sendEmailNotification('pioneer', {
+        firstName, lastName, email, phone, country, city, bio
+      });
+
+      logEvent(analytics, 'pioneer_interest', { country, city });
+
+      showToast('Thank you! Global HQ will contact you within 48 hours.', 'success');
+      setTimeout(() => closeModal('pioneer'), 2000);
+
+    } catch(err) {
+      console.error('Pioneer error:', err);
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Signify Interest →';
+    }
+  };
+
+  window.submitTestimonyForm = async function() {
+    const btn = document.getElementById('testimonySubmitBtn');
+    const name = document.getElementById('testimonyName').value.trim();
+    const network = document.getElementById('testimonyNetwork').value.trim();
+    const category = document.getElementById('testimonyCategory').value;
+    const text = document.getElementById('testimonyText').value.trim();
+    const city = document.getElementById('testimonyCity').value.trim();
+    const country = document.getElementById('testimonyCountry').value.trim();
+
+    if (!text || text.length < 20) {
+      showToast('Please describe what God did (at least 20 characters).', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Publishing...';
+
+    try {
+      await addDoc(collection(db, 'testimonies'), {
+        name: name || 'Anonymous Practitioner',
+        network: network || 'LNI Global',
+        category,
+        text,
+        city: city || '',
+        country: country || '',
+        createdAt: serverTimestamp(),
+        approved: true,   // Auto-approve; set false if you want moderation
+        heat: 'hot',
+        isNew: true
+      });
+
+      await window.sendEmailNotification('testimony', { name, network, category, text });
+
+      logEvent(analytics, 'testimony_submitted', { category });
+
+      showToast('Glory to God! Your testimony is now on the global feed.', 'success');
+      setTimeout(() => closeModal('testimony'), 2000);
+
+    } catch(err) {
+      console.error('Testimony error:', err);
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Publish to Global Feed →';
+    }
+  };
+
+  window.submitContactForm = async function() {
+    const btn = document.getElementById('contactSubmitBtn');
+    const name = document.getElementById('contactName').value.trim();
+    const email = document.getElementById('contactEmail').value.trim();
+    const message = document.getElementById('contactMessage').value.trim();
+    const leaderEmail = window.__currentLeaderEmail || 'global@lehemnetwork.org';
+
+    if (!name || !email || !message) {
+      showToast('Please fill in all fields.', 'error');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      await addDoc(collection(db, 'contact_messages'), {
+        name, email, message, leaderEmail,
+        createdAt: serverTimestamp()
+      });
+
+      await window.sendEmailNotification('contact', { name, email, message, leaderEmail });
+
+      showToast('Message sent! The network leader will be in touch.', 'success');
+      setTimeout(() => closeModal('contact'), 2000);
+
+    } catch(err) {
+      console.error('Contact error:', err);
+      showToast('Something went wrong. Please try again.', 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send Message →';
+    }
+  };
+</script>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     EMAILJS — Free plan gives 2 templates. We use 1 multi-purpose
+     template that handles all 4 form types via template variables.
+     
+     ALTERNATIVE (completely free, unlimited): Web3Forms.com
+     Both options are implemented below — choose one.
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+  // ── EMAILJS CONFIG ── Fill in your actual IDs
+  const EMAILJS_PUBLIC_KEY    = 'YOUR_EMAILJS_PUBLIC_KEY';
+  const EMAILJS_SERVICE_ID    = 'YOUR_EMAILJS_SERVICE_ID';
+  const EMAILJS_TEMPLATE_ID   = 'YOUR_EMAILJS_TEMPLATE_ID'; // One universal template
+
+  // ── WEB3FORMS ALTERNATIVE (Free, unlimited, no template limits) ──
+  // Sign up at https://web3forms.com — get a free access key, paste it below.
+  // Receives all form emails directly to your email with zero limitations.
+  const WEB3FORMS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
+
+  // Initialize EmailJS
+  emailjs.init(EMAILJS_PUBLIC_KEY);
+
+  /**
+   * sendEmailNotification — sends email notification for any form type
+   * Uses Web3Forms as primary (free, unlimited), EmailJS as fallback.
+   *
+   * @param {string} type - 'join' | 'pioneer' | 'testimony' | 'contact'
+   * @param {object} data - form data
+   */
+  window.sendEmailNotification = async function(type, data) {
+    const typeLabels = {
+      join: '🙌 New Member Registration',
+      pioneer: '🌱 New Pioneer Interest',
+      testimony: '🔥 New Testimony Submitted',
+      contact: '✉ New Contact Message'
+    };
+
+    const subject = typeLabels[type] + ' — LNI Global';
+    const body = Object.entries(data)
+      .map(([k, v]) => `${k.charAt(0).toUpperCase() + k.slice(1)}: ${v}`)
+      .join('\n');
+
+    // Method 1: Web3Forms (recommended — free & unlimited)
+    if (WEB3FORMS_KEY && WEB3FORMS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
+      try {
+        const res = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            access_key: WEB3FORMS_KEY,
+            subject: subject,
+            message: body,
+            from_name: data.firstName || data.name || 'LNI Website',
+            email: data.email || 'noreply@lehemnetwork.org',
+            ...data
+          })
+        });
+        const result = await res.json();
+        if (result.success) return;
+      } catch(e) { console.warn('Web3Forms error, trying EmailJS:', e); }
+    }
+
+    // Method 2: EmailJS fallback
+    if (EMAILJS_PUBLIC_KEY !== 'YOUR_EMAILJS_PUBLIC_KEY') {
+      try {
+        await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+          form_type: type,
+          subject: subject,
+          message: body,
+          reply_to: data.email || '',
+          to_name: 'LNI Global HQ',
+          ...data
+        });
+      } catch(e) { console.warn('EmailJS error:', e); }
+    }
+  };
+</script>
+
+<style>
+  :root {
+    --gold: #C9922A;
+    --gold-light: #F0C060;
+    --gold-pale: #FAE8B0;
+    --deep: #0A0604;
+    --dark: #110C05;
+    --mid: #1E1508;
+    --warm: #2A1F0E;
+    --text: #EDE0C8;
+    --muted: #9A8870;
+    --red-heat: #E63030;
+    --orange-heat: #F07030;
+    --teal-cool: #30C0A0;
+    --success: #30C090;
+    --error: #E63030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--deep);
+    color: var(--text);
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+    opacity: 0.4;
+  }
+
+  /* ── TOAST NOTIFICATION ── */
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--dark);
+    border: 1px solid rgba(201,146,42,0.4);
+    color: var(--text);
+    padding: 16px 28px;
+    font-size: 0.88rem;
+    letter-spacing: 0.05em;
+    z-index: 9998;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 2px;
+    max-width: 420px;
+    text-align: center;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--success); color: var(--success); }
+  #toast.error { border-color: var(--error); color: #FF8080; }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 48px;
+    background: linear-gradient(to bottom, rgba(10,6,4,0.97) 0%, transparent 100%);
+    border-bottom: 1px solid rgba(201,146,42,0.12);
+    backdrop-filter: blur(8px);
+  }
+
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-emblem { width: 42px; height: 42px; }
+
+  .nav-wordmark {
+    font-family: 'Cinzel', serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    letter-spacing: 0.15em;
+    line-height: 1.1;
+  }
+  .nav-wordmark span {
+    display: block;
+    font-size: 0.6rem;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+
+  .nav-links { display: flex; align-items: center; gap: 32px; list-style: none; }
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.78rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    transition: color 0.3s;
+  }
+  .nav-links a:hover { color: var(--gold-light); }
+
+  .nav-cta {
+    background: linear-gradient(135deg, var(--gold), #8A5A10);
+    color: var(--deep) !important;
+    font-weight: 700 !important;
+    padding: 10px 22px;
+    border-radius: 2px;
+  }
+
+  /* ── HERO ── */
+  #hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    text-align: center;
+    padding: 120px 40px 80px;
+    overflow: hidden;
+  }
+
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(201,146,42,0.12) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,146,42,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 30% 30% at 80% 20%, rgba(201,146,42,0.05) 0%, transparent 60%);
+  }
+
+  .hero-particles { position: absolute; inset: 0; overflow: hidden; }
+
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    animation: float linear infinite;
+    opacity: 0;
+  }
+
+  @keyframes float {
+    0% { transform: translateY(100vh) translateX(0); opacity: 0; }
+    10% { opacity: 0.6; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(-10vh) translateX(40px); opacity: 0; }
+  }
+
+  .hero-eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.5em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    animation: fadeUp 1s ease both;
+  }
+
+  .hero-title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: clamp(2.5rem, 7vw, 6.5rem);
+    font-weight: 900;
+    line-height: 0.95;
+    color: var(--gold-light);
+    text-shadow: 0 0 80px rgba(201,146,42,0.3), 0 4px 20px rgba(0,0,0,0.8);
+    animation: fadeUp 1s 0.2s ease both;
+    margin-bottom: 8px;
+  }
+
+  .hero-subtitle {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(0.9rem, 2vw, 1.4rem);
+    color: var(--muted);
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    animation: fadeUp 1s 0.4s ease both;
+    margin-bottom: 20px;
+  }
+
+  .hero-quote {
+    font-size: clamp(0.85rem, 1.5vw, 1rem);
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 660px;
+    margin: 0 auto 32px;
+    animation: fadeUp 1s 0.5s ease both;
+    font-style: italic;
+  }
+
+  .hero-taglines {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 56px;
+    animation: fadeUp 1s 0.6s ease both;
+  }
+
+  .tagline-pill {
+    background: rgba(201,146,42,0.1);
+    border: 1px solid rgba(201,146,42,0.25);
+    padding: 10px 24px;
+    border-radius: 100px;
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    color: var(--gold-pale);
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 64px;
+    justify-content: center;
+    animation: fadeUp 1s 0.8s ease both;
+    margin-bottom: 56px;
+  }
+
+  .stat { text-align: center; }
+  .stat-num {
+    font-family: 'Cinzel', serif;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: block;
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .hero-cta-group { display: flex; gap: 16px; animation: fadeUp 1s 1s ease both; }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+    color: var(--deep);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(201,146,42,0.4); }
+  .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .btn-secondary {
+    background: transparent;
+    color: var(--gold-light);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    padding: 16px 36px;
+    border: 1px solid rgba(201,146,42,0.4);
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+  }
+  .btn-secondary:hover { background: rgba(201,146,42,0.08); border-color: var(--gold); }
+
+  .scroll-line {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.65rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    animation: fadeUp 1s 1.5s ease both;
+  }
+  .scroll-line::after {
+    content: '';
+    width: 1px;
+    height: 40px;
+    background: linear-gradient(to bottom, var(--gold), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.4; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SECTION COMMONS ── */
+  section { position: relative; }
+  .section-label {
+    font-family: 'Cinzel', serif;
+    font-size: 0.65rem;
+    letter-spacing: 0.5em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    font-weight: 700;
+    color: var(--gold-pale);
+    line-height: 1.1;
+    margin-bottom: 20px;
+  }
+  .section-body { font-size: 1rem; line-height: 1.8; color: var(--muted); max-width: 600px; }
+  .divider { width: 60px; height: 2px; background: linear-gradient(to right, var(--gold), transparent); margin: 20px 0; }
+
+  /* ── MISSION PILLARS ── */
+  #pillars { padding: 120px 48px; background: var(--dark); }
+  .pillars-header { text-align: center; margin-bottom: 80px; }
+  .pillars-header .divider { margin: 20px auto; }
+  .pillars-header .section-body { margin: 0 auto; text-align: center; }
+
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  .pillar {
+    background: var(--mid);
+    padding: 56px 40px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s;
+  }
+  .pillar::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 3px;
+    background: linear-gradient(to right, var(--gold), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s;
+  }
+  .pillar:hover::before { transform: scaleX(1); }
+  .pillar:hover { background: var(--warm); transform: translateY(-4px); }
+
+  .pillar-icon { width: 56px; height: 56px; margin-bottom: 28px; }
+  .pillar-num {
+    font-family: 'Cinzel', serif;
+    font-size: 3.5rem;
+    font-weight: 700;
+    color: rgba(201,146,42,0.1);
+    position: absolute;
+    top: 20px; right: 24px;
+    line-height: 1;
+  }
+  .pillar h3 { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; color: var(--gold-light); margin-bottom: 12px; letter-spacing: 0.05em; }
+  .pillar p { font-size: 0.9rem; line-height: 1.8; color: var(--muted); }
+  .pillar-vs { font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; display: block; }
+
+  /* ── LIVE HEAT MAP ── */
+  #heatmap { padding: 120px 48px; background: var(--deep); }
+
+  .heatmap-layout {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 48px;
+    max-width: 1300px;
+    margin: 0 auto;
+    align-items: start;
+  }
+
+  .map-container {
+    position: relative;
+    background: var(--mid);
+    border: 1px solid rgba(201,146,42,0.15);
+    border-radius: 4px;
+    overflow: hidden;
+    aspect-ratio: 16/9;
+  }
+
+  .map-svg { width: 100%; height: 100%; }
+
+  .live-badge {
+    position: absolute;
+    top: 16px; left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(10,6,4,0.85);
+    border: 1px solid rgba(230,48,48,0.4);
+    padding: 6px 14px;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #FF6060;
+  }
+
+  .live-dot {
+    width: 8px; height: 8px;
+    background: var(--red-heat);
+    border-radius: 50%;
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.6); }
+  }
+
+  .map-legend {
+    position: absolute;
+    bottom: 16px; right: 16px;
+    background: rgba(10,6,4,0.85);
+    border: 1px solid rgba(201,146,42,0.2);
+    padding: 12px 16px;
+    border-radius: 4px;
+  }
+  .legend-title { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .legend-scale { display: flex; align-items: center; gap: 8px; font-size: 0.65rem; color: var(--muted); }
+  .legend-gradient { width: 80px; height: 8px; border-radius: 4px; background: linear-gradient(to right, #1a3a2a, #30C0A0, #F07030, #E63030); }
+
+  /* ── TESTIMONY FEED ── */
+  .testimony-feed { display: flex; flex-direction: column; gap: 0; }
+  .feed-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .feed-header h3 { font-family: 'Cinzel', serif; font-size: 0.85rem; font-weight: 600; color: var(--gold-light); letter-spacing: 0.15em; text-transform: uppercase; }
+  .feed-count { font-size: 0.7rem; color: var(--muted); background: var(--mid); border: 1px solid rgba(201,146,42,0.2); padding: 4px 10px; border-radius: 100px; }
+
+  .testimony-card {
+    background: var(--mid);
+    border-left: 3px solid var(--gold);
+    padding: 20px 24px;
+    margin-bottom: 2px;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+    animation: slideIn 0.5s ease both;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+  .testimony-card:hover { background: var(--warm); border-left-color: var(--gold-light); }
+  .testimony-card.heat-hot { border-left-color: var(--red-heat); }
+  .testimony-card.heat-warm { border-left-color: var(--orange-heat); }
+
+  .card-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .card-location { font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+  .card-dot { width: 3px; height: 3px; background: var(--muted); border-radius: 50%; }
+  .card-time { font-size: 0.68rem; color: var(--muted); }
+  .card-new { margin-left: auto; font-size: 0.6rem; background: rgba(230,48,48,0.15); border: 1px solid rgba(230,48,48,0.3); color: #FF8080; padding: 2px 8px; border-radius: 100px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .card-text { font-size: 0.88rem; line-height: 1.6; color: var(--text); }
+  .card-category { margin-top: 10px; font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+  /* ── FIND YOUR NETWORK ── */
+  #find-network { padding: 120px 48px; background: var(--dark); }
+  .finder-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1200px; margin: 0 auto; align-items: center; }
+
+  .country-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 420px; overflow-y: auto; padding-right: 8px; }
+  .country-grid::-webkit-scrollbar { width: 4px; }
+  .country-grid::-webkit-scrollbar-track { background: var(--mid); }
+  .country-grid::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+  .country-btn { background: var(--mid); border: 1px solid transparent; color: var(--muted); font-size: 0.72rem; padding: 10px 8px; cursor: pointer; transition: all 0.2s; text-align: center; letter-spacing: 0.05em; border-radius: 2px; font-family: 'Lato', sans-serif; }
+  .country-btn:hover, .country-btn.active { background: var(--warm); border-color: var(--gold); color: var(--gold-light); }
+  .country-btn.has-network::after { content: '●'; display: block; font-size: 0.45rem; color: var(--teal-cool); margin-top: 2px; }
+
+  .search-box { background: var(--mid); border: 1px solid rgba(201,146,42,0.2); display: flex; align-items: center; padding: 16px 20px; gap: 12px; margin-bottom: 16px; transition: border-color 0.3s; }
+  .search-box:focus-within { border-color: var(--gold); }
+  .search-box input { background: none; border: none; outline: none; color: var(--text); font-family: 'Lato', sans-serif; font-size: 0.95rem; flex: 1; }
+  .search-box input::placeholder { color: var(--muted); }
+  .search-icon { color: var(--muted); font-size: 1rem; }
+
+  .network-result { background: var(--mid); border: 1px solid rgba(201,146,42,0.15); padding: 28px; min-height: 200px; display: flex; flex-direction: column; gap: 12px; }
+  .result-found { display: none; }
+  .result-found.active { display: flex; flex-direction: column; gap: 12px; }
+  .network-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(48,192,160,0.1); border: 1px solid rgba(48,192,160,0.3); color: var(--teal-cool); padding: 6px 14px; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; border-radius: 2px; width: fit-content; }
+  .network-name { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--gold-light); }
+  .network-info { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+  .network-actions { display: flex; gap: 10px; margin-top: 8px; flex-wrap: wrap; }
+
+  .result-pioneer { display: none; flex-direction: column; gap: 12px; }
+  .result-pioneer.active { display: flex; }
+  .pioneer-icon { font-size: 2rem; color: var(--gold); }
+  .pioneer-title { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--gold-pale); }
+  .pioneer-text { font-size: 0.88rem; line-height: 1.7; color: var(--muted); }
+
+  .result-empty { display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; gap: 12px; height: 100%; color: var(--muted); font-size: 0.88rem; }
+  .result-empty .empty-icon { font-size: 2.5rem; opacity: 0.3; }
+
+  /* ── MODAL OVERLAY ── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(10,6,4,0.92); z-index: 2000; align-items: center; justify-content: center; padding: 40px; backdrop-filter: blur(6px); }
+  .modal-overlay.open { display: flex; }
+
+  .modal { background: var(--dark); border: 1px solid rgba(201,146,42,0.25); padding: 48px; max-width: 560px; width: 100%; position: relative; animation: modalIn 0.4s ease both; max-height: 90vh; overflow-y: auto; }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+  .modal-close { position: absolute; top: 16px; right: 16px; background: none; border: none; color: var(--muted); font-size: 1.4rem; cursor: pointer; transition: color 0.2s; }
+  .modal-close:hover { color: var(--gold-light); }
+
+  .modal-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold-light); margin-bottom: 8px; }
+  .modal-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 32px; line-height: 1.6; }
+
+  .form-group { margin-bottom: 20px; }
+  .form-group label { display: block; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; background: var(--mid); border: 1px solid rgba(201,146,42,0.2); color: var(--text); font-family: 'Lato', sans-serif; font-size: 0.9rem; padding: 14px 16px; outline: none; transition: border-color 0.3s; resize: vertical; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+  .form-group select { appearance: none; }
+  .form-group select option { background: var(--mid); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  /* ── ABOUT / ETHOS ── */
+  #ethos { padding: 120px 48px; background: var(--deep); }
+  .ethos-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; max-width: 1200px; margin: 0 auto; align-items: center; }
+
+  .ethos-visual { position: relative; aspect-ratio: 4/5; background: var(--mid); }
+  .ethos-quote-card { position: absolute; bottom: -24px; right: -24px; background: var(--gold); padding: 28px 32px; max-width: 280px; }
+  .quote-text { font-family: 'Cinzel', serif; font-size: 1.1rem; color: var(--deep); line-height: 1.4; font-weight: 600; }
+  .quote-source { font-size: 0.7rem; color: rgba(10,6,4,0.6); margin-top: 12px; letter-spacing: 0.15em; text-transform: uppercase; }
+  .ethos-graphic { width: 100%; height: 100%; object-fit: cover; display: flex; align-items: center; justify-content: center; font-size: 8rem; color: rgba(201,146,42,0.15); }
+
+  .value-list { margin-top: 32px; }
+  .value-item { display: flex; align-items: flex-start; gap: 20px; padding: 20px 0; border-bottom: 1px solid rgba(201,146,42,0.08); }
+  .value-num { font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700; color: rgba(201,146,42,0.25); min-width: 36px; line-height: 1; margin-top: 4px; }
+  .value-content h4 { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--gold-pale); margin-bottom: 6px; }
+  .value-content p { font-size: 0.85rem; color: var(--muted); line-height: 1.7; }
+
+  /* ── LOCATIONS ── */
+  #locations { padding: 120px 48px; background: var(--dark); }
+  .locations-header { text-align: center; margin-bottom: 72px; }
+  .locations-header .divider { margin: 20px auto; }
+
+  .locations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 2px; max-width: 1300px; margin: 0 auto 48px; }
+
+  .location-card { background: var(--mid); padding: 32px 28px; position: relative; overflow: hidden; transition: all 0.3s; cursor: pointer; }
+  .location-card:hover { background: var(--warm); transform: translateY(-2px); }
+  .location-card.hq { background: linear-gradient(135deg, #1E1508 0%, #2a1d08 100%); border: 1px solid rgba(201,146,42,0.3); }
+
+  .location-flag { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+  .location-lni { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; color: var(--gold); text-transform: uppercase; margin-bottom: 4px; }
+  .location-name { font-family: 'Cinzel', serif; font-size: 1.2rem; font-weight: 700; color: var(--gold-pale); margin-bottom: 8px; }
+  .location-meta { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .location-hq-badge { position: absolute; top: 12px; right: 12px; background: var(--gold); color: var(--deep); font-size: 0.58rem; letter-spacing: 0.2em; text-transform: uppercase; padding: 4px 8px; font-weight: 700; }
+  .location-status { display: flex; align-items: center; gap: 6px; margin-top: 12px; font-size: 0.7rem; color: var(--teal-cool); }
+  .status-dot { width: 6px; height: 6px; background: var(--teal-cool); border-radius: 50%; animation: livePulse 2s ease-in-out infinite; }
+
+  /* ── SHARE TESTIMONY ── */
+  #share { padding: 120px 48px; background: var(--mid); text-align: center; }
+  .share-inner { max-width: 680px; margin: 0 auto; }
+  .share-glow { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 80% at 50% 50%, rgba(201,146,42,0.08) 0%, transparent 70%); }
+
+  /* ── FOOTER ── */
+  footer { background: var(--deep); border-top: 1px solid rgba(201,146,42,0.1); padding: 80px 48px 40px; }
+  .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; max-width: 1200px; margin: 0 auto 64px; }
+  .footer-text { font-size: 0.85rem; color: var(--muted); line-height: 1.8; max-width: 280px; }
+  .footer-heading { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .footer-links { list-style: none; }
+  .footer-links li { margin-bottom: 12px; }
+  .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+  .footer-links a:hover { color: var(--gold-light); }
+
+  .social-links { display: flex; gap: 12px; margin-top: 24px; }
+  .social-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgba(201,146,42,0.25);
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    transition: all 0.25s;
+    border-radius: 2px;
+  }
+  .social-link:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(201,146,42,0.08); }
+
+  .footer-bottom { border-top: 1px solid rgba(201,146,42,0.08); padding-top: 32px; display: flex; align-items: center; justify-content: space-between; max-width: 1200px; margin: 0 auto; font-size: 0.75rem; color: var(--muted); }
+  .footer-hq { display: flex; align-items: center; gap: 8px; font-size: 0.75rem; color: var(--muted); }
+  .hq-flag { font-size: 1rem; }
+
+  /* ── UTILS ── */
+  .btn-sm { background: none; border: 1px solid rgba(201,146,42,0.3); color: var(--gold-light); font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 10px 18px; cursor: pointer; transition: all 0.2s; }
+  .btn-sm:hover { background: rgba(201,146,42,0.1); border-color: var(--gold); }
+
+  .btn-pioneer { background: linear-gradient(135deg, var(--gold-light), var(--gold)); color: var(--deep); font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.15em; text-transform: uppercase; padding: 12px 22px; border: none; cursor: pointer; font-weight: 700; transition: all 0.3s; }
+  .btn-pioneer:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(201,146,42,0.35); }
+  .btn-pioneer:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .heat-pulse { animation: heatPulse 3s ease-in-out infinite; }
+  @keyframes heatPulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
+
+  /* ── WHATSAPP CTA ── */
+  .whatsapp-note {
+    margin-top: 16px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .whatsapp-note span { color: #25D366; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .pillars-grid { grid-template-columns: 1fr; }
+    .heatmap-layout { grid-template-columns: 1fr; }
+    .finder-layout { grid-template-columns: 1fr; gap: 40px; }
+    .ethos-layout { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    nav { padding: 16px 24px; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 640px) {
+    #pillars, #heatmap, #find-network, #ethos, #locations, #share { padding: 80px 24px; }
+    .hero-stats { gap: 32px; }
+    .country-grid { grid-template-columns: repeat(3, 1fr); }
+    .footer-grid { grid-template-columns: 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .modal { padding: 28px 20px; }
+    .hero-cta-group { flex-direction: column; align-items: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <svg class="nav-emblem" viewBox="0 0 42 42" fill="none">
+      <circle cx="21" cy="21" r="20" stroke="#C9922A" stroke-width="1.5" opacity="0.4"/>
+      <path d="M21 8 C21 8, 30 14, 30 22 C30 28, 25.5 33, 21 34 C16.5 33, 12 28, 12 22 C12 14, 21 8, 21 8Z" fill="rgba(201,146,42,0.15)" stroke="#C9922A" stroke-width="1.2"/>
+      <path d="M17 22 Q21 17 25 22" stroke="#F0C060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="21" cy="22" r="2" fill="#F0C060"/>
+    </svg>
+    <div class="nav-wordmark">
+      LNI Global
+      <span>Lehem Network International</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#pillars">Our Mission</a></li>
+    <li><a href="#heatmap">Live Exploits</a></li>
+    <li><a href="#find-network">Find a Network</a></li>
+    <li><a href="#locations">Locations</a></li>
+    <li><a href="#share">Share Testimony</a></li>
+    <li><a href="#" class="nav-cta" onclick="openModal('join'); return false;">Join LNI</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="particles"></div>
+
+  <div class="hero-eyebrow">Lagos · Global · Every Nation</div>
+  <h1 class="hero-title">Lehem Network<br>International</h1>
+  <p class="hero-subtitle">LNI Global · לֶחֶם — House of Bread · A Living Network Across All Nations</p>
+
+  <p class="hero-quote">"We do not gather bread — we break it, multiply it, and take it everywhere.<br>
+  Not spectators watching revival happen. Not talkers dreaming of it.<br>
+  We are practitioners. Goers. Demonstrators of the God-life."</p>
+
+  <div class="hero-taglines">
+    <span class="tagline-pill">Doers, not Talkers</span>
+    <span class="tagline-pill">Goers, not Members</span>
+    <span class="tagline-pill">Demonstrators, not Spectators</span>
+    <span class="tagline-pill">Practitioners, not Believers alone</span>
+  </div>
+
+  <div class="hero-stats">
+    <div class="stat">
+      <span class="stat-num" id="statNations">87</span>
+      <div class="stat-label">Nations</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="statNetworks">340+</span>
+      <div class="stat-label">Active Networks</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="statPractitioners">12.4k</span>
+      <div class="stat-label">Practitioners</div>
+    </div>
+    <div class="stat">
+      <span class="stat-num" id="statTestimonies">3.2k+</span>
+      <div class="stat-label">Testimonies Filed</div>
+    </div>
+  </div>
+
+  <div class="hero-cta-group">
+    <a href="#find-network" class="btn-primary">Find Your Network →</a>
+    <a href="#heatmap" class="btn-secondary">Watch the Exploits</a>
+  </div>
+
+  <div class="scroll-line">Scroll</div>
+</section>
+
+<!-- MISSION PILLARS -->
+<section id="pillars">
+  <div class="pillars-header">
+    <div class="section-label">The LNI Ethos</div>
+    <h2 class="section-title">Not Spectators.<br>Practitioners.</h2>
+    <div class="divider"></div>
+    <p class="section-body">We exist to raise a global community of believers who don't merely attend church — they are the Church in motion. Every member is an agent of the God-life, demonstrating heaven's reality in their city.</p>
+  </div>
+
+  <div class="pillars-grid">
+    <div class="pillar">
+      <div class="pillar-num">01</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <path d="M28 8 L44 20 L44 36 L28 48 L12 36 L12 20 Z" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M28 8 L28 48 M12 20 L44 36 M44 20 L12 36" stroke="#C9922A" stroke-width="0.8" opacity="0.4"/>
+        <circle cx="28" cy="28" r="4" fill="#F0C060"/>
+      </svg>
+      <span class="pillar-vs">Doers · not Talkers</span>
+      <h3>We Don't Just Talk About The Glory, We Manifest It</h3>
+      <p>Our stories are written in the streets, hospitals, schools and markets of the world — not just in sermons.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">02</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <circle cx="28" cy="28" r="18" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M28 14 L28 28 L38 22" stroke="#F0C060" stroke-width="2" stroke-linecap="round"/>
+        <circle cx="28" cy="28" r="4" fill="rgba(201,146,42,0.4)" stroke="#C9922A" stroke-width="1"/>
+        <path d="M16 40 Q28 34 40 40" stroke="#C9922A" stroke-width="1" opacity="0.5" fill="none"/>
+      </svg>
+      <span class="pillar-vs">Goers · not Members</span>
+      <h3>We Go, We Don't Just Go Through Motions</h3>
+      <p>Every practitioner is sent into their sphere — marketplace, neighbourhood, campus — as a carrier of the Kingdom. We don't wait for revival; we are it.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">03</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <rect x="10" y="18" width="36" height="24" rx="2" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.08)"/>
+        <path d="M10 26 L46 26" stroke="#C9922A" stroke-width="0.8" opacity="0.5"/>
+        <path d="M20 32 L36 32" stroke="#F0C060" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M28 14 L28 18" stroke="#C9922A" stroke-width="1.5"/>
+        <circle cx="28" cy="12" r="3" fill="#C9922A"/>
+      </svg>
+      <span class="pillar-vs">Demonstrators · not Spectators</span>
+      <h3>We Demonstrate the God Life</h3>
+      <p>Signs, wonders and transformed lives aren't a show — they are our normal. The God-life is not theory; it is daily, documented, and infectious.</p>
+    </div>
+    <div class="pillar">
+      <div class="pillar-num">04</div>
+      <svg class="pillar-icon" viewBox="0 0 56 56" fill="none">
+        <path d="M14 28 L22 36 L42 16" stroke="#F0C060" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        <circle cx="28" cy="28" r="18" stroke="#C9922A" stroke-width="1.5" fill="rgba(201,146,42,0.06)"/>
+      </svg>
+      <span class="pillar-vs">Practitioners · not mere Believers</span>
+      <h3>We Practice What We Preach</h3>
+      <p>Faith without works is not faith. Every LNI network is a practitioner community: praying, acting, recording, reporting — fuel for the global fire.</p>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE HEAT MAP -->
+<section id="heatmap">
+  <div style="max-width:1300px; margin: 0 auto;">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:48px;flex-wrap:wrap;gap:20px;">
+      <div>
+        <div class="section-label">Live · Global · Now</div>
+        <h2 class="section-title">The Exploits Are<br>Happening Now</h2>
+        <div class="divider"></div>
+        <p class="section-body" style="max-width:480px;">Every testimony submitted from any LNI network around the world appears here in real time. Let what God is doing in Lagos fuel your faith in London, and what's happening in Atlanta ignite Lusaka.</p>
+      </div>
+      <button class="btn-primary" onclick="openModal('testimony')" style="height:fit-content;">+ Submit a Testimony</button>
+    </div>
+  </div>
+
+  <div class="heatmap-layout">
+    <div class="map-container">
+      <div class="live-badge">
+        <div class="live-dot"></div>
+        Live Feed
+      </div>
+      <svg class="map-svg" viewBox="0 0 900 500" id="worldMap">
+        <rect width="900" height="500" fill="#110C05"/>
+        <g stroke="rgba(201,146,42,0.06)" stroke-width="0.5">
+          <line x1="0" y1="125" x2="900" y2="125"/>
+          <line x1="0" y1="250" x2="900" y2="250"/>
+          <line x1="0" y1="375" x2="900" y2="375"/>
+          <line x1="225" y1="0" x2="225" y2="500"/>
+          <line x1="450" y1="0" x2="450" y2="500"/>
+          <line x1="675" y1="0" x2="675" y2="500"/>
+        </g>
+        <path d="M80 80 L200 70 L240 120 L220 200 L160 240 L100 220 L60 160 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <path d="M140 260 L200 250 L230 290 L220 380 L170 400 L130 360 L120 300 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+        <path d="M380 60 L450 55 L470 100 L440 140 L390 140 L360 110 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <path d="M380 150 L450 145 L470 200 L460 300 L420 360 L380 340 L350 280 L360 200 Z" fill="rgba(201,146,42,0.1)" stroke="rgba(201,146,42,0.25)" stroke-width="0.8"/>
+        <path d="M480 60 L700 50 L750 100 L720 180 L650 200 L560 190 L480 150 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+        <path d="M680 220 L760 210 L800 260 L780 310 L720 300 L680 260 Z" fill="rgba(201,146,42,0.07)" stroke="rgba(201,146,42,0.18)" stroke-width="0.8"/>
+        <path d="M700 320 L800 310 L830 360 L800 410 L720 420 L690 380 Z" fill="rgba(201,146,42,0.08)" stroke="rgba(201,146,42,0.2)" stroke-width="0.8"/>
+
+        <!-- HQ Lagos — brightest dot -->
+        <circle cx="413" cy="248" r="14" fill="rgba(230,48,48,0.2)" class="heat-pulse"/>
+        <circle cx="413" cy="248" r="8" fill="rgba(230,48,48,0.4)" class="heat-pulse"/>
+        <circle cx="413" cy="248" r="4" fill="#E63030"/>
+        <text x="420" y="244" fill="#E63030" font-size="8" font-family="Cinzel,serif" opacity="0.9">HQ Lagos</text>
+
+        <circle cx="160" cy="155" r="10" fill="rgba(240,112,48,0.2)" class="heat-pulse"/>
+        <circle cx="160" cy="155" r="5" fill="rgba(240,112,48,0.5)" class="heat-pulse"/>
+        <circle cx="160" cy="155" r="2.5" fill="#F07030"/>
+
+        <circle cx="390" cy="85" r="9" fill="rgba(240,192,96,0.2)"/>
+        <circle cx="390" cy="85" r="4" fill="rgba(240,192,96,0.5)"/>
+        <circle cx="390" cy="85" r="2" fill="#F0C060"/>
+
+        <circle cx="405" cy="335" r="8" fill="rgba(48,192,160,0.2)"/>
+        <circle cx="405" cy="335" r="4" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="405" cy="335" r="2" fill="#30C0A0"/>
+
+        <circle cx="452" cy="242" r="9" fill="rgba(240,112,48,0.2)"/>
+        <circle cx="452" cy="242" r="4" fill="rgba(240,112,48,0.4)"/>
+        <circle cx="452" cy="242" r="2" fill="#F07030"/>
+
+        <circle cx="435" cy="285" r="7" fill="rgba(48,192,160,0.15)"/>
+        <circle cx="435" cy="285" r="3.5" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="435" cy="285" r="1.8" fill="#30C0A0"/>
+
+        <circle cx="570" cy="165" r="8" fill="rgba(240,192,96,0.15)"/>
+        <circle cx="570" cy="165" r="4" fill="rgba(240,192,96,0.4)"/>
+        <circle cx="570" cy="165" r="2" fill="#F0C060"/>
+
+        <circle cx="790" cy="370" r="7" fill="rgba(48,192,160,0.15)"/>
+        <circle cx="790" cy="370" r="3.5" fill="rgba(48,192,160,0.4)"/>
+        <circle cx="790" cy="370" r="1.8" fill="#30C0A0"/>
+
+        <circle cx="178" cy="115" r="6" fill="rgba(240,192,96,0.15)"/>
+        <circle cx="178" cy="115" r="3" fill="rgba(240,192,96,0.4)"/>
+        <circle cx="178" cy="115" r="1.5" fill="#F0C060"/>
+
+        <circle cx="195" cy="320" r="7" fill="rgba(240,112,48,0.15)"/>
+        <circle cx="195" cy="320" r="3.5" fill="rgba(240,112,48,0.4)"/>
+        <circle cx="195" cy="320" r="1.8" fill="#F07030"/>
+
+        <circle cx="424" cy="78" r="6" fill="rgba(201,146,42,0.2)"/>
+        <circle cx="424" cy="78" r="3" fill="rgba(201,146,42,0.5)"/>
+        <circle cx="424" cy="78" r="1.5" fill="#C9922A"/>
+
+        <!-- Dynamic map dots injected by JS -->
+        <g id="dynamicMapDots"></g>
+      </svg>
+
+      <div class="map-legend">
+        <div class="legend-title">Testimony Intensity</div>
+        <div class="legend-scale">
+          <span>Low</span>
+          <div class="legend-gradient"></div>
+          <span>High</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="testimony-feed">
+      <div class="feed-header">
+        <h3>Latest Testimonies</h3>
+        <span class="feed-count" id="feedCount">Loading...</span>
+      </div>
+      <div id="testimonyFeed"></div>
+    </div>
+  </div>
+</section>
+
+<!-- FIND YOUR NETWORK -->
+<section id="find-network">
+  <div class="finder-layout">
+    <div>
+      <div class="section-label">You Belong Somewhere</div>
+      <h2 class="section-title">Find Your<br>LNI Network</h2>
+      <div class="divider"></div>
+      <p class="section-body">Select your country below and search for your city. If a network exists near you, join them. If not — you could be the one to start it.</p>
+      <br><br>
+      <div class="country-grid" id="countryGrid"></div>
+    </div>
+
+    <div class="finder-right">
+      <div style="margin-bottom: 28px;">
+        <div class="section-label" id="selectedCountryLabel">Select a country</div>
+        <p style="font-size: 0.85rem; color: var(--muted); margin-top: 8px;" id="selectedCountryHint">Then search for your city or town below</p>
+      </div>
+
+      <div class="search-box">
+        <span class="search-icon">🔍</span>
+        <input type="text" placeholder="Search city or town..." id="citySearch" oninput="searchCity(this.value)">
+      </div>
+
+      <div class="network-result" id="networkResult">
+        <div class="result-empty" id="emptyState">
+          <div class="empty-icon">🌍</div>
+          <p>Select a country and search your city to find an LNI network</p>
+        </div>
+        <div class="result-found" id="foundState">
+          <span class="network-tag">✓ Network Found</span>
+          <div class="network-name" id="foundName"></div>
+          <p class="network-info" id="foundInfo"></p>
+          <div class="network-actions">
+            <button class="btn-primary" onclick="openModal('join')" style="font-size:0.72rem;padding:12px 20px;">Join this Network</button>
+            <button class="btn-sm" onclick="openModal('contact')">Contact Leader</button>
+          </div>
+        </div>
+        <div class="result-pioneer" id="pioneerState">
+          <div class="pioneer-icon">🌱</div>
+          <div class="pioneer-title">No Network Here Yet</div>
+          <p class="pioneer-text">There's no LNI network in your area — but every network started with one person willing to go first. Could you be the pioneer?</p>
+          <div class="network-actions">
+            <button class="btn-pioneer" onclick="openModal('pioneer')">Signify Interest to Pioneer</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="pioneer-text" style="margin-top:12px;font-size:0.76rem;">
+        🌾 "The harvest is plentiful. The labourers must go." — LNI Global Declaration
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT / ETHOS -->
+<section id="ethos">
+  <div class="ethos-layout">
+    <div class="ethos-visual">
+      <div class="ethos-graphic">🌾</div>
+      <div class="ethos-quote-card">
+        <div class="quote-text">"The harvest is plentiful. The labourers must go."</div>
+        <div class="quote-source">LNI Global Declaration</div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Our Foundation</div>
+      <h2 class="section-title">Rooted in Lagos.<br>Reaching Every Nation.</h2>
+      <div class="divider"></div>
+      <p class="section-body">Lehem Network International was born in Lagos, Nigeria with a singular conviction: that the body of Christ is called to demonstrate the Kingdom in every sphere of life across every nation.</p>
+
+      <div class="value-list">
+        <div class="value-item">
+          <div class="value-num">I</div>
+          <div class="value-content">
+            <h4>One Standard, Every Nation</h4>
+            <p>Every LNI network — whether LNI Atlanta, LNI Cape Town or LNI Tokyo — carries the same DNA, pursues the same God and operates in the same Spirit.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">II</div>
+          <div class="value-content">
+            <h4>Connected by Testimonies</h4>
+            <p>We believe shared testimonies accelerate corporate faith. What God does in one city is spiritual fuel for every other city in the network.</p>
+          </div>
+        </div>
+        <div class="value-item">
+          <div class="value-num">III</div>
+          <div class="value-content">
+            <h4>Pioneer Culture</h4>
+            <p>We celebrate those who go first. Every city without a network is an invitation, not a gap. We equip and send pioneers continually.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- NETWORK LOCATIONS -->
+<section id="locations">
+  <div class="locations-header">
+    <div class="section-label">The LNI Family</div>
+    <h2 class="section-title">Networks Around the Globe</h2>
+    <div class="divider"></div>
+  </div>
+
+  <div class="locations-grid" id="locationsGrid"></div>
+
+  <div style="text-align:center;">
+    <button class="btn-secondary" onclick="openModal('pioneer')">Don't See Your City? Pioneer One →</button>
+  </div>
+</section>
+
+<!-- SHARE TESTIMONY -->
+<section id="share">
+  <div class="share-glow"></div>
+  <div class="share-inner" style="position:relative;">
+    <div class="section-label">Your Story Matters</div>
+    <h2 class="section-title">What Has God Done<br>Through You This Week?</h2>
+    <div class="divider" style="margin: 20px auto;"></div>
+    <p class="section-body" style="margin: 0 auto 40px; text-align:center;">Your testimony is not just your story — it is ammunition for every believer in the network who needs to see that God is active, present and moving. Submit it. Let it fuel the fire.</p>
+    <button class="btn-primary" onclick="openModal('testimony')" style="margin: 0 auto; display: block;">Share Your Testimony →</button>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <div class="nav-wordmark" style="font-size:1.1rem;color:var(--gold-light);margin-bottom:16px;display:block;">
+        LNI Global
+        <span>Lehem Network International</span>
+      </div>
+      <p class="footer-text">A global network of practitioners — goers, demonstrators and people of the God-life — rooted in Lagos and reaching every nation.</p>
+
+      <!-- ── SOCIAL MEDIA LINKS — All pointing to @LehemNetwork ── -->
+      <div class="social-links">
+        <a href="https://instagram.com/LehemNetwork" target="_blank" rel="noopener" class="social-link" title="Instagram @LehemNetwork">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="https://youtube.com/@LehemNetwork" target="_blank" rel="noopener" class="social-link" title="YouTube @LehemNetwork">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        </a>
+        <a href="https://twitter.com/LehemNetwork" target="_blank" rel="noopener" class="social-link" title="X (Twitter) @LehemNetwork">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        </a>
+        <a href="https://facebook.com/LehemNetwork" target="_blank" rel="noopener" class="social-link" title="Facebook @LehemNetwork">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        </a>
+        <a href="https://tiktok.com/@LehemNetwork" target="_blank" rel="noopener" class="social-link" title="TikTok @LehemNetwork">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.79 1.52V6.76a4.85 4.85 0 0 1-1.02-.07z"/></svg>
+        </a>
+        <a href="https://chat.whatsapp.com/K29N9Q2UmI61xwqlCQAWKo?mode=gi_t" target="_blank" rel="noopener" class="social-link" title="Join our WhatsApp Community">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div>
+      <div class="footer-heading">Explore</div>
+      <ul class="footer-links">
+        <li><a href="#pillars">Our Mission</a></li>
+        <li><a href="#heatmap">Live Exploits</a></li>
+        <li><a href="#find-network">Find a Network</a></li>
+        <li><a href="#locations">All Locations</a></li>
+        <li><a href="#share">Share Testimony</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Connect</div>
+      <ul class="footer-links">
+        <li><a href="#" onclick="openModal('join'); return false;">Join LNI</a></li>
+        <li><a href="#" onclick="openModal('pioneer'); return false;">Pioneer a Network</a></li>
+        <li><a href="#" onclick="openModal('testimony'); return false;">Submit Testimony</a></li>
+        <li><a href="mailto:global@lehemnetwork.org">Partner with Us</a></li>
+        <li><a href="mailto:prayer@lehemnetwork.org">Prayer Requests</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-heading">Resources</div>
+      <ul class="footer-links">
+        <li><a href="https://youtube.com/@LehemNetwork" target="_blank">LNI Teachings</a></li>
+        <li><a href="mailto:leaders@lehemnetwork.org">Network Leaders Hub</a></li>
+        <li><a href="mailto:pioneers@lehemnetwork.org">Pioneer Toolkit</a></li>
+        <li><a href="mailto:global@lehemnetwork.org">Contact Global HQ</a></li>
+        <li><a href="#privacy">Privacy Policy</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 Lehem Network International. All rights reserved.</span>
+    <div class="footer-hq">
+      <span class="hq-flag">🇳🇬</span>
+      <span>Global HQ · Lagos, Nigeria</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     MODALS
+     ═══════════════════════════════════════════════════════════════ -->
+
+<!-- JOIN MODAL -->
+<div class="modal-overlay" id="joinModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('join')">✕</button>
+    <div class="modal-title">Join LNI</div>
+    <p class="modal-subtitle">Register to connect with your local LNI network and become part of the global practitioner community. After registering, you'll be directed to our WhatsApp community to connect with your team.</p>
+    <div class="form-row">
+      <div class="form-group"><label>First Name *</label><input type="text" id="joinFirstName" placeholder="John"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="joinLastName" placeholder="Adebayo"/></div>
+    </div>
+    <div class="form-group"><label>Email Address *</label><input type="email" id="joinEmail" placeholder="john@email.com"/></div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Country *</label>
+        <select id="joinCountry">
+          <option value="">Select country...</option>
+          <option>Nigeria</option><option>Ghana</option><option>USA</option><option>UK</option>
+          <option>South Africa</option><option>Zambia</option><option>Kenya</option>
+          <option>Germany</option><option>Australia</option><option>Canada</option>
+          <option>Brazil</option><option>India</option><option>Singapore</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group"><label>City</label><input type="text" id="joinCity" placeholder="Your city"/></div>
+    </div>
+    <div class="form-group"><label>Network You're Joining</label><input type="text" id="joinNetwork" placeholder="e.g. LNI Atlanta"/></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" id="joinSubmitBtn" onclick="submitJoinForm()">Register to Join →</button>
+    </div>
+    <p class="whatsapp-note"><span>💬</span> You'll be redirected to our WhatsApp community after registration</p>
+  </div>
+</div>
+
+<!-- PIONEER MODAL -->
+<div class="modal-overlay" id="pioneerModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('pioneer')">✕</button>
+    <div class="modal-title">Pioneer a Network</div>
+    <p class="modal-subtitle">No LNI network in your area yet? Signify your interest and our Global HQ team will reach out to support, train and commission you.</p>
+    <div class="form-row">
+      <div class="form-group"><label>First Name *</label><input type="text" id="pioneerFirstName" placeholder="Your name"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="pioneerLastName" placeholder="Your surname"/></div>
+    </div>
+    <div class="form-group"><label>Email Address *</label><input type="email" id="pioneerEmail" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Phone Number</label><input type="tel" id="pioneerPhone" placeholder="+1 234 567 8900"/></div>
+    <div class="form-row">
+      <div class="form-group"><label>Country *</label><input type="text" id="pioneerCountry" placeholder="Your country"/></div>
+      <div class="form-group"><label>City / Town *</label><input type="text" id="pioneerCity" placeholder="Your city or town"/></div>
+    </div>
+    <div class="form-group"><label>Tell us briefly about yourself</label><textarea id="pioneerBio" rows="3" placeholder="Your background, ministry experience, heart for the community..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-pioneer" id="pioneerSubmitBtn" onclick="submitPioneerForm()">Signify Interest →</button>
+    </div>
+  </div>
+</div>
+
+<!-- TESTIMONY MODAL -->
+<div class="modal-overlay" id="testimonyModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('testimony')">✕</button>
+    <div class="modal-title">Share Your Testimony</div>
+    <p class="modal-subtitle">Your exploit will be published on the global live feed to inspire practitioners across every time zone.</p>
+    <div class="form-row">
+      <div class="form-group"><label>Your Name</label><input type="text" id="testimonyName" placeholder="(Optional — can be anonymous)"/></div>
+      <div class="form-group"><label>LNI Network</label><input type="text" id="testimonyNetwork" placeholder="e.g. LNI Cape Town"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Country</label><input type="text" id="testimonyCountry" placeholder="Country"/></div>
+      <div class="form-group"><label>City</label><input type="text" id="testimonyCity" placeholder="City"/></div>
+    </div>
+    <div class="form-group"><label>Category</label>
+      <select id="testimonyCategory">
+        <option>Healing & Miracles</option>
+        <option>Salvation & Deliverance</option>
+        <option>Supernatural Provision</option>
+        <option>Marketplace Exploits</option>
+        <option>Signs & Wonders</option>
+        <option>Answered Prayer</option>
+        <option>Evangelism Breakthrough</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Your Testimony *</label><textarea id="testimonyText" rows="5" placeholder="Describe what God did through you. Be specific — specific testimonies carry specific faith..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" id="testimonySubmitBtn" onclick="submitTestimonyForm()">Publish to Global Feed →</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTACT MODAL -->
+<div class="modal-overlay" id="contactModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('contact')">✕</button>
+    <div class="modal-title">Contact Network Leader</div>
+    <p class="modal-subtitle">Send a message to the leader of this LNI network. They'll get back to you promptly.</p>
+    <div class="form-group"><label>Your Name *</label><input type="text" id="contactName" placeholder="Your full name"/></div>
+    <div class="form-group"><label>Email Address *</label><input type="email" id="contactEmail" placeholder="your@email.com"/></div>
+    <div class="form-group"><label>Message *</label><textarea id="contactMessage" rows="4" placeholder="Introduce yourself and how you'd like to connect..."></textarea></div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="btn-primary" id="contactSubmitBtn" onclick="submitContactForm()">Send Message →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT — UI Logic (non-Firebase)
+     ═══════════════════════════════════════════════════════════════ -->
+<script>
+// ── PARTICLES ──
+(function() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 30; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.width = p.style.height = (Math.random() * 3 + 1) + 'px';
+    p.style.animationDuration = (Math.random() * 15 + 8) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    container.appendChild(p);
+  }
+})();
+
+// ── MODAL ──
+function openModal(type) {
+  document.getElementById(type + 'Modal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(type) {
+  document.getElementById(type + 'Modal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', function(e) {
+    if (e.target === this) {
+      this.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+});
+// Close on Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.open').forEach(m => {
+      m.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  }
+});
+
+// ── TOAST ──
+function showToast(message, type = 'success') {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.className = 'show ' + type;
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.className = ''; }, 4000);
+}
+
+// ── FALLBACK TESTIMONY DATA (shown until Firebase loads) ──
+const fallbackTestimonies = [
+  { loc: 'LNI Lagos, Nigeria', time: '2 min ago', text: 'A woman in our neighbourhood meeting was completely healed of hypertension — the nurse confirmed it. The doctors called it inexplicable.', category: 'Healing & Miracles', heat: 'hot', isNew: true },
+  { loc: 'LNI Atlanta, USA', time: '17 min ago', text: 'Led three colleagues to Christ during lunch break today. What started as casual conversation became a divine appointment.', category: 'Evangelism Breakthrough', heat: 'warm', isNew: true },
+  { loc: 'LNI Cape Town, SA', time: '34 min ago', text: 'Our street evangelism team prayed for a man with a broken arm and the pain left immediately. He joined us for two more hours!', category: 'Signs & Wonders', heat: '', isNew: false },
+  { loc: 'LNI Nairobi, Kenya', time: '1 hr ago', text: 'A businessman in our network received a supernatural turnaround — a contract that was cancelled was reinstated with a 3x increase.', category: 'Supernatural Provision', heat: 'warm', isNew: false },
+  { loc: 'LNI London, UK', time: '2 hrs ago', text: 'A woman came to Sunday Connect visibly troubled. She left free. Six years of depression — lifted in a single moment of ministry.', category: 'Salvation & Deliverance', heat: '', isNew: false },
+  { loc: 'LNI Mumbai, India', time: '3 hrs ago', text: 'A family that had been trying to conceive for 9 years called us this morning — twins confirmed! God answers prayer.', category: 'Answered Prayer', heat: '', isNew: false },
+];
+
+// ── TESTIMONY FEED RENDERER ──
+// Called by Firebase real-time listener OR with fallback data
+window.renderLiveTestimonies = function(testimonies) {
+  const feed = document.getElementById('testimonyFeed');
+  if (!testimonies || !testimonies.length) {
+    renderFromData(fallbackTestimonies);
+    return;
+  }
+
+  const formatted = testimonies.map(t => ({
+    loc: (t.network || ('LNI ' + (t.city || 'Global'))),
+    time: formatTime(t.createdAt),
+    text: t.text,
+    category: t.category,
+    heat: t.heat || '',
+    isNew: t.isNew || false
+  }));
+
+  renderFromData(formatted);
+};
+
+function renderFromData(data) {
+  const feed = document.getElementById('testimonyFeed');
+  feed.innerHTML = '';
+  data.forEach((t, i) => {
+    const card = document.createElement('div');
+    card.className = `testimony-card ${t.heat ? 'heat-' + t.heat : ''}`;
+    card.style.animationDelay = (i * 0.08) + 's';
+    card.innerHTML = `
+      <div class="card-meta">
+        <span class="card-location">${t.loc}</span>
+        <div class="card-dot"></div>
+        <span class="card-time">${t.time}</span>
+        ${t.isNew ? '<span class="card-new">New</span>' : ''}
+      </div>
+      <div class="card-text">${t.text}</div>
+      <div class="card-category">${t.category}</div>
+    `;
+    feed.appendChild(card);
+  });
+}
+
+function formatTime(timestamp) {
+  if (!timestamp) return 'Just now';
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  const diff = Math.floor((Date.now() - date.getTime()) / 1000);
+  if (diff < 60) return 'Just now';
+  if (diff < 3600) return Math.floor(diff / 60) + ' min ago';
+  if (diff < 86400) return Math.floor(diff / 3600) + ' hr ago';
+  return Math.floor(diff / 86400) + ' days ago';
+}
+
+// Show fallback immediately while Firebase loads
+renderLiveTestimonies(null);
+document.getElementById('feedCount').textContent = '24 today';
+
+// ── NETWORK DATA ──
+const networkData = {
+  'Nigeria': {
+    cities: {
+      'Lagos': { name: 'LNI Lagos', info: 'Global Headquarters · Est. 2010 · 4 weekly gatherings', leader: 'Apostle Emmanuel Adeyemi', leaderEmail: 'lagos@lehemnetwork.org' },
+      'Abuja': { name: 'LNI Abuja', info: 'Federal Capital Network · Est. 2015 · 2 weekly gatherings', leader: 'Pastor Grace Okonkwo', leaderEmail: 'abuja@lehemnetwork.org' },
+      'Port Harcourt': { name: 'LNI Port Harcourt', info: 'Rivers State Network · Est. 2018 · 2 weekly gatherings', leader: 'Dr. Chukwu Emmanuel', leaderEmail: 'portharcourt@lehemnetwork.org' }
+    }
+  },
+  'USA': {
+    cities: {
+      'Atlanta': { name: 'LNI Atlanta', info: 'Southeast USA Network · Est. 2014 · 3 weekly gatherings', leader: 'Pastor David Osei', leaderEmail: 'atlanta@lehemnetwork.org' },
+      'New York': { name: 'LNI New York', info: 'Northeast USA Network · Est. 2016 · 2 weekly gatherings', leader: 'Pastor Miriam Eze', leaderEmail: 'newyork@lehemnetwork.org' },
+      'Houston': { name: 'LNI Houston', info: 'Texas Network · Est. 2019 · 2 weekly gatherings', leader: 'Deacon Samuel Clarke', leaderEmail: 'houston@lehemnetwork.org' }
+    }
+  },
+  'South Africa': {
+    cities: {
+      'Cape Town': { name: 'LNI Cape Town', info: 'Western Cape Network · Est. 2013 · 3 weekly gatherings', leader: 'Pastor Ntombi Dlamini', leaderEmail: 'capetown@lehemnetwork.org' },
+      'Johannesburg': { name: 'LNI Johannesburg', info: 'Gauteng Network · Est. 2012 · 4 weekly gatherings', leader: 'Elder Moses Sithole', leaderEmail: 'joburg@lehemnetwork.org' }
+    }
+  },
+  'Zambia': { cities: { 'Lusaka': { name: 'LNI Lusaka', info: 'Zambia National Network · Est. 2017 · 2 weekly gatherings', leader: 'Pastor John Banda', leaderEmail: 'lusaka@lehemnetwork.org' } } },
+  'Kenya': { cities: { 'Nairobi': { name: 'LNI Nairobi', info: 'East Africa Hub · Est. 2015 · 3 weekly gatherings', leader: 'Apostle Peter Kamau', leaderEmail: 'nairobi@lehemnetwork.org' } } },
+  'UK': {
+    cities: {
+      'London': { name: 'LNI London', info: 'UK Network · Est. 2011 · 3 weekly gatherings', leader: 'Pastor Rachel Mensah', leaderEmail: 'london@lehemnetwork.org' },
+      'Manchester': { name: 'LNI Manchester', info: 'Northwest UK Network · Est. 2020 · 1 weekly gathering', leader: 'Pastor Tom Osei', leaderEmail: 'manchester@lehemnetwork.org' }
+    }
+  },
+  'Germany': { cities: { 'Berlin': { name: 'LNI Berlin', info: 'Germany Network · Est. 2019 · 2 weekly gatherings', leader: 'Pastor Hans Adeyemi', leaderEmail: 'berlin@lehemnetwork.org' } } },
+  'India': { cities: { 'Mumbai': { name: 'LNI Mumbai', info: 'India Western Network · Est. 2021 · 2 weekly gatherings', leader: 'Pastor Priya Samuel', leaderEmail: 'mumbai@lehemnetwork.org' } } },
+  'Australia': { cities: { 'Sydney': { name: 'LNI Sydney', info: 'Australia Network · Est. 2018 · 2 weekly gatherings', leader: 'Pastor Michael Okonkwo', leaderEmail: 'sydney@lehemnetwork.org' } } },
+  'Ghana': { cities: { 'Accra': { name: 'LNI Accra', info: 'Ghana Network · Est. 2016 · 3 weekly gatherings', leader: 'Apostle Kwame Asante', leaderEmail: 'accra@lehemnetwork.org' } } },
+  'Canada': { cities: { 'Toronto': { name: 'LNI Toronto', info: 'Canada Network · Est. 2017 · 2 weekly gatherings', leader: 'Pastor Angela Diop', leaderEmail: 'toronto@lehemnetwork.org' } } },
+  'Brazil': { cities: { 'São Paulo': { name: 'LNI São Paulo', info: 'Brazil Network · Est. 2020 · 2 weekly gatherings', leader: 'Pastor Ricardo Oliveira', leaderEmail: 'saopaulo@lehemnetwork.org' } } },
+};
+
+const allCountries = [
+  'Nigeria','Ghana','Kenya','South Africa','Zambia','Zimbabwe','Ethiopia','Uganda',
+  'Tanzania','Cameroon','Senegal','Ivory Coast','Rwanda','Mozambique','DR Congo',
+  'USA','Canada','Brazil','UK','Germany','France','Netherlands','Sweden','Norway',
+  'India','Singapore','South Korea','Japan','Malaysia','Philippines','Australia',
+  'New Zealand','UAE','Saudi Arabia','Israel','Portugal','Spain','Italy'
+];
+
+let selectedCountry = null;
+
+function buildCountryGrid() {
+  const grid = document.getElementById('countryGrid');
+  allCountries.forEach(country => {
+    const btn = document.createElement('button');
+    btn.className = 'country-btn' + (networkData[country] ? ' has-network' : '');
+    btn.textContent = country;
+    btn.title = networkData[country] ? 'Network exists!' : 'No network yet';
+    btn.onclick = () => selectCountry(country, btn);
+    grid.appendChild(btn);
+  });
+}
+
+function selectCountry(country, btn) {
+  document.querySelectorAll('.country-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedCountry = country;
+  document.getElementById('selectedCountryLabel').textContent = country;
+  document.getElementById('selectedCountryHint').textContent = networkData[country]
+    ? 'Networks found in ' + country + ' — search your city'
+    : 'No networks yet in ' + country + ' — search to confirm or pioneer one';
+  document.getElementById('citySearch').value = '';
+  showEmptyState();
+}
+
+function searchCity(val) {
+  if (!val || !selectedCountry) return showEmptyState();
+  const data = networkData[selectedCountry];
+  if (!data) return showPioneerState();
+
+  const match = Object.keys(data.cities).find(city =>
+    city.toLowerCase().includes(val.toLowerCase()) || val.toLowerCase().includes(city.toLowerCase().split(' ')[0])
+  );
+
+  if (match) {
+    const network = data.cities[match];
+    document.getElementById('foundName').textContent = network.name;
+    document.getElementById('foundInfo').innerHTML = `<strong style="color:var(--gold-pale)">${match}, ${selectedCountry}</strong><br>${network.info}<br><br><strong>Network Leader:</strong> ${network.leader}`;
+    document.getElementById('joinNetwork').value = network.name;
+    // Store leader email for contact form
+    window.__currentLeaderEmail = network.leaderEmail;
+    showFoundState();
+  } else if (val.length >= 3) {
+    showPioneerState();
+  } else {
+    showEmptyState();
+  }
+}
+
+function showEmptyState() {
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('foundState').classList.remove('active');
+  document.getElementById('pioneerState').classList.remove('active');
+}
+function showFoundState() {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('foundState').classList.add('active');
+  document.getElementById('pioneerState').classList.remove('active');
+}
+function showPioneerState() {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('foundState').classList.remove('active');
+  document.getElementById('pioneerState').classList.add('active');
+}
+
+buildCountryGrid();
+
+// ── LOCATIONS GRID ──
+const locations = [
+  { city: 'Lagos', country: 'Nigeria', flag: '🇳🇬', est: '2010', gatherings: '4 weekly', hq: true },
+  { city: 'Johannesburg', country: 'South Africa', flag: '🇿🇦', est: '2012', gatherings: '4 weekly' },
+  { city: 'Cape Town', country: 'South Africa', flag: '🇿🇦', est: '2013', gatherings: '3 weekly' },
+  { city: 'Atlanta', country: 'USA', flag: '🇺🇸', est: '2014', gatherings: '3 weekly' },
+  { city: 'Nairobi', country: 'Kenya', flag: '🇰🇪', est: '2015', gatherings: '3 weekly' },
+  { city: 'Accra', country: 'Ghana', flag: '🇬🇭', est: '2016', gatherings: '3 weekly' },
+  { city: 'Abuja', country: 'Nigeria', flag: '🇳🇬', est: '2015', gatherings: '2 weekly' },
+  { city: 'London', country: 'UK', flag: '🇬🇧', est: '2011', gatherings: '3 weekly' },
+  { city: 'Toronto', country: 'Canada', flag: '🇨🇦', est: '2017', gatherings: '2 weekly' },
+  { city: 'Lusaka', country: 'Zambia', flag: '🇿🇲', est: '2017', gatherings: '2 weekly' },
+  { city: 'Sydney', country: 'Australia', flag: '🇦🇺', est: '2018', gatherings: '2 weekly' },
+  { city: 'Berlin', country: 'Germany', flag: '🇩🇪', est: '2019', gatherings: '2 weekly' },
+  { city: 'Houston', country: 'USA', flag: '🇺🇸', est: '2019', gatherings: '2 weekly' },
+  { city: 'São Paulo', country: 'Brazil', flag: '🇧🇷', est: '2020', gatherings: '2 weekly' },
+  { city: 'Mumbai', country: 'India', flag: '🇮🇳', est: '2021', gatherings: '2 weekly' },
+  { city: 'New York', country: 'USA', flag: '🇺🇸', est: '2016', gatherings: '2 weekly' },
+];
+
+function buildLocations() {
+  const grid = document.getElementById('locationsGrid');
+  locations.forEach(loc => {
+    const card = document.createElement('div');
+    card.className = 'location-card' + (loc.hq ? ' hq' : '');
+    card.innerHTML = `
+      ${loc.hq ? '<div class="location-hq-badge">Global HQ</div>' : ''}
+      <span class="location-flag">${loc.flag}</span>
+      <div class="location-lni">LNI</div>
+      <div class="location-name">${loc.city}</div>
+      <div class="location-meta">${loc.country} · Est. ${loc.est}<br>${loc.gatherings}</div>
+      <div class="location-status"><span class="status-dot"></span>Active Network</div>
+    `;
+    card.onclick = () => openModal('join');
+    grid.appendChild(card);
+  });
+}
+buildLocations();
+
+// ── NAV SCROLL EFFECT ──
+window.addEventListener('scroll', () => {
+  const nav = document.querySelector('nav');
+  if (window.scrollY > 80) {
+    nav.style.background = 'rgba(10,6,4,0.98)';
+    nav.style.borderBottomColor = 'rgba(201,146,42,0.2)';
+  } else {
+    nav.style.background = 'linear-gradient(to bottom, rgba(10,6,4,0.97) 0%, transparent 100%)';
+    nav.style.borderBottomColor = 'rgba(201,146,42,0.12)';
+  }
+});
+</script>
+</body>
+</html>
