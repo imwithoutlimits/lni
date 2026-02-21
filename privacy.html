@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Lehem Network International</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9922A; --gold-light: #F0C060; --gold-pale: #FAE8B0;
+    --deep: #0A0604; --dark: #110C05; --mid: #1E1508; --warm: #2A1F0E;
+    --text: #EDE0C8; --muted: #9A8870;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--deep); color: var(--text); font-family: 'Lato', sans-serif; font-weight: 300; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px; background: rgba(10,6,4,0.97);
+    border-bottom: 1px solid rgba(201,146,42,0.15); backdrop-filter: blur(8px);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-emblem { width: 38px; height: 38px; }
+  .nav-wordmark { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: var(--gold-light); letter-spacing: 0.15em; line-height: 1.1; }
+  .nav-wordmark span { display: block; font-size: 0.58rem; font-weight: 400; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; }
+  .nav-back { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .nav-back:hover { color: var(--gold-light); }
+
+  .page-hero {
+    min-height: 36vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 140px 40px 60px; position: relative;
+  }
+  .page-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(201,146,42,0.08) 0%, transparent 70%); }
+  .page-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .page-title { font-family: 'Cinzel', serif; font-size: clamp(1.8rem, 4vw, 3.2rem); font-weight: 700; color: var(--gold-pale); margin-bottom: 12px; }
+  .page-updated { font-size: 0.8rem; color: var(--muted); letter-spacing: 0.1em; }
+  .divider { width: 60px; height: 2px; background: linear-gradient(to right, var(--gold), transparent); margin: 20px auto; }
+
+  /* TABLE OF CONTENTS */
+  .toc-wrap { max-width: 900px; margin: 0 auto; padding: 0 48px 40px; }
+  .toc { background: var(--mid); border: 1px solid rgba(201,146,42,0.15); padding: 32px 40px; }
+  .toc-title { font-family: 'Cinzel', serif; font-size: 0.8rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 20px; }
+  .toc-list { list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: 10px 40px; }
+  .toc-list li a { font-size: 0.85rem; color: var(--muted); text-decoration: none; transition: color 0.2s; display: flex; align-items: center; gap: 8px; }
+  .toc-list li a:hover { color: var(--gold-light); }
+  .toc-list li a::before { content: '→'; color: var(--gold); font-size: 0.75rem; }
+
+  /* CONTENT */
+  .policy-content { max-width: 900px; margin: 0 auto; padding: 0 48px 120px; }
+
+  .policy-section { margin-bottom: 56px; scroll-margin-top: 100px; }
+  .section-num { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .section-heading { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--gold-pale); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid rgba(201,146,42,0.12); }
+  .policy-text { font-size: 0.92rem; color: var(--muted); line-height: 2; margin-bottom: 16px; }
+  .policy-text strong { color: var(--text); font-weight: 700; }
+
+  .policy-list { list-style: none; margin: 16px 0; }
+  .policy-list li { font-size: 0.9rem; color: var(--muted); line-height: 1.8; padding: 10px 0 10px 24px; border-bottom: 1px solid rgba(201,146,42,0.06); position: relative; }
+  .policy-list li::before { content: '›'; position: absolute; left: 0; color: var(--gold); font-size: 1.1rem; }
+
+  .highlight-box { background: var(--mid); border-left: 3px solid var(--gold); padding: 20px 24px; margin: 20px 0; }
+  .highlight-box p { font-size: 0.88rem; color: var(--text); line-height: 1.8; }
+
+  .contact-ref { background: var(--dark); border: 1px solid rgba(201,146,42,0.2); padding: 28px; margin-top: 20px; }
+  .contact-ref p { font-size: 0.88rem; color: var(--muted); line-height: 1.8; }
+  .contact-ref a { color: var(--gold-light); text-decoration: none; }
+  .contact-ref a:hover { text-decoration: underline; }
+
+  .page-footer { background: var(--deep); border-top: 1px solid rgba(201,146,42,0.1); padding: 40px 48px; text-align: center; }
+  .page-footer p { font-size: 0.78rem; color: var(--muted); }
+  .page-footer a { color: var(--gold); text-decoration: none; }
+
+  @media (max-width: 768px) {
+    nav { padding: 16px 24px; }
+    .toc-wrap, .policy-content { padding-left: 24px; padding-right: 24px; }
+    .toc-list { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg class="nav-emblem" viewBox="0 0 42 42" fill="none">
+      <circle cx="21" cy="21" r="20" stroke="#C9922A" stroke-width="1.5" opacity="0.4"/>
+      <path d="M21 8 C21 8, 30 14, 30 22 C30 28, 25.5 33, 21 34 C16.5 33, 12 28, 12 22 C12 14, 21 8, 21 8Z" fill="rgba(201,146,42,0.15)" stroke="#C9922A" stroke-width="1.2"/>
+      <path d="M17 22 Q21 17 25 22" stroke="#F0C060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="21" cy="22" r="2" fill="#F0C060"/>
+    </svg>
+    <div class="nav-wordmark">LNI Global <span>Lehem Network International</span></div>
+  </a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-label">Legal</div>
+  <h1 class="page-title">Privacy Policy</h1>
+  <div class="divider"></div>
+  <p class="page-updated">Last updated: January 2025</p>
+</div>
+
+<!-- TABLE OF CONTENTS -->
+<div class="toc-wrap">
+  <div class="toc">
+    <div class="toc-title">Contents</div>
+    <ul class="toc-list">
+      <li><a href="#who-we-are">Who We Are</a></li>
+      <li><a href="#what-we-collect">What Data We Collect</a></li>
+      <li><a href="#how-we-use">How We Use Your Data</a></li>
+      <li><a href="#storage">Where Data Is Stored</a></li>
+      <li><a href="#sharing">Data Sharing</a></li>
+      <li><a href="#rights">Your Rights</a></li>
+      <li><a href="#cookies">Cookies</a></li>
+      <li><a href="#contact-us">Contact Us</a></li>
+    </ul>
+  </div>
+</div>
+
+<!-- POLICY CONTENT -->
+<div class="policy-content">
+
+  <div class="highlight-box">
+    <p><strong>Plain English summary:</strong> We collect your name, email, country and city when you fill in a form on this website. We use that information only to connect you with an LNI network and to send you relevant communications. We do not sell your data. We do not share it with advertisers. You can ask us to delete it at any time.</p>
+  </div>
+
+  <div class="policy-section" id="who-we-are">
+    <div class="section-num">01</div>
+    <h2 class="section-heading">Who We Are</h2>
+    <p class="policy-text">Lehem Network International (LNI) is a global ministry network headquartered in Lagos, Nigeria. This privacy policy applies to the website located at <strong>lni.netlify.app</strong> and any associated digital services operated by LNI Global.</p>
+    <p class="policy-text">For the purposes of data protection law, LNI Global is the data controller responsible for your personal information.</p>
+  </div>
+
+  <div class="policy-section" id="what-we-collect">
+    <div class="section-num">02</div>
+    <h2 class="section-heading">What Data We Collect</h2>
+    <p class="policy-text">We only collect information that you voluntarily provide to us through the forms on this website. This may include:</p>
+    <ul class="policy-list">
+      <li><strong>First and last name</strong> — so we can address you personally</li>
+      <li><strong>Email address</strong> — so we can respond to you and connect you with your local network</li>
+      <li><strong>Country and city</strong> — so we can match you with the correct LNI network in your area</li>
+      <li><strong>Phone number</strong> — only if you choose to provide it on the Pioneer Interest form</li>
+      <li><strong>Testimony text</strong> — if you submit a testimony, which may be displayed publicly on the website</li>
+      <li><strong>Prayer requests</strong> — submitted through the prayer request form, stored securely</li>
+      <li><strong>Ministry background</strong> — only on the Pioneer form, and only if you choose to share it</li>
+    </ul>
+    <p class="policy-text">We do not collect payment information, government identification, or any sensitive personal data.</p>
+  </div>
+
+  <div class="policy-section" id="how-we-use">
+    <div class="section-num">03</div>
+    <h2 class="section-heading">How We Use Your Data</h2>
+    <p class="policy-text">Your information is used only for the following purposes:</p>
+    <ul class="policy-list">
+      <li>To connect you with your nearest LNI network and its leader</li>
+      <li>To follow up on your registration, pioneer interest, or enquiry</li>
+      <li>To display approved testimonies on the global live feed (only testimony text — your name is optional and displayed only if you provide it)</li>
+      <li>To send you relevant communications about LNI networks, events, and teachings — only if you have engaged with us through a form</li>
+      <li>To notify our team of new form submissions so we can respond promptly</li>
+    </ul>
+    <p class="policy-text">We will never use your data to send unrelated marketing, spam, or third-party promotions.</p>
+  </div>
+
+  <div class="policy-section" id="storage">
+    <div class="section-num">04</div>
+    <h2 class="section-heading">Where Your Data Is Stored</h2>
+    <p class="policy-text">Your data is stored in <strong>Google Firebase Firestore</strong>, a secure cloud database service operated by Google LLC. Firebase is compliant with GDPR, ISO 27001, and SOC 1/2/3 standards. Your data may be stored on servers located in Europe or the United States depending on Firebase's infrastructure.</p>
+    <p class="policy-text">Form notification emails are processed through <strong>Web3Forms</strong>, a secure email relay service. These emails are not stored permanently by Web3Forms — they are forwarded directly to our team's inbox.</p>
+    <p class="policy-text">We take reasonable technical measures to protect your data against unauthorised access, including database security rules that restrict read/write access.</p>
+  </div>
+
+  <div class="policy-section" id="sharing">
+    <div class="section-num">05</div>
+    <h2 class="section-heading">Data Sharing</h2>
+    <p class="policy-text">We do not sell, rent, or trade your personal information to any third party. Your data may be shared only in the following limited circumstances:</p>
+    <ul class="policy-list">
+      <li><strong>With your local LNI network leader</strong> — when you register to join a specific network, the network leader may receive your name and email so they can welcome you</li>
+      <li><strong>With Google (Firebase)</strong> — as the infrastructure provider for our database, as described above</li>
+      <li><strong>If required by law</strong> — if we are legally compelled to disclose information by a court or regulatory authority</li>
+    </ul>
+  </div>
+
+  <div class="policy-section" id="rights">
+    <div class="section-num">06</div>
+    <h2 class="section-heading">Your Rights</h2>
+    <p class="policy-text">You have the following rights regarding your personal data. To exercise any of them, contact us at <strong>global@lehemnetwork.org</strong>:</p>
+    <ul class="policy-list">
+      <li><strong>Right to access</strong> — you can request a copy of any personal data we hold about you</li>
+      <li><strong>Right to correction</strong> — you can ask us to correct inaccurate data</li>
+      <li><strong>Right to deletion</strong> — you can ask us to delete your data at any time and we will do so within 30 days</li>
+      <li><strong>Right to object</strong> — you can object to us processing your data for any reason</li>
+      <li><strong>Right to withdraw consent</strong> — if you have given consent to any processing, you can withdraw it at any time</li>
+    </ul>
+    <p class="policy-text">If you are located in the European Union, you also have rights under the General Data Protection Regulation (GDPR). If you are located in California, USA, you have rights under the California Consumer Privacy Act (CCPA).</p>
+  </div>
+
+  <div class="policy-section" id="cookies">
+    <div class="section-num">07</div>
+    <h2 class="section-heading">Cookies</h2>
+    <p class="policy-text">This website uses minimal cookies. Specifically:</p>
+    <ul class="policy-list">
+      <li><strong>Firebase Analytics</strong> — we use Google Firebase Analytics to understand how visitors use our site (page views, general location, device type). This data is anonymous and aggregated. No individual is identified.</li>
+      <li>We do not use advertising cookies, tracking pixels, or any third-party marketing cookies.</li>
+    </ul>
+    <p class="policy-text">You can disable cookies in your browser settings at any time without affecting your ability to use this website.</p>
+  </div>
+
+  <div class="policy-section" id="contact-us">
+    <div class="section-num">08</div>
+    <h2 class="section-heading">Contact Us About This Policy</h2>
+    <p class="policy-text">If you have any questions about this privacy policy, how we handle your data, or wish to exercise any of your rights, please contact us:</p>
+    <div class="contact-ref">
+      <p>
+        <strong style="color:var(--gold-pale);">Lehem Network International — Data Enquiries</strong><br><br>
+        Email: <a href="mailto:global@lehemnetwork.org">global@lehemnetwork.org</a><br>
+        Location: Lagos, Nigeria<br><br>
+        We aim to respond to all privacy-related requests within 14 days.
+      </p>
+    </div>
+    <p class="policy-text" style="margin-top:20px;">This policy may be updated from time to time. The date at the top of this page always reflects when it was last revised. Continued use of the website after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <p>© 2025 Lehem Network International · <a href="contact.html">Contact HQ</a> · <a href="index.html">Back to Home</a></p>
+</div>
+
+</body>
+</html>
