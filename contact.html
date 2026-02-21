@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Global HQ — Lehem Network International</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9922A; --gold-light: #F0C060; --gold-pale: #FAE8B0;
+    --deep: #0A0604; --dark: #110C05; --mid: #1E1508; --warm: #2A1F0E;
+    --text: #EDE0C8; --muted: #9A8870; --teal: #30C0A0;
+    --success: #30C090; --error: #E63030;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--deep); color: var(--text); font-family: 'Lato', sans-serif; font-weight: 300; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px;
+    background: rgba(10,6,4,0.97);
+    border-bottom: 1px solid rgba(201,146,42,0.15);
+    backdrop-filter: blur(8px);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-emblem { width: 38px; height: 38px; }
+  .nav-wordmark { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: var(--gold-light); letter-spacing: 0.15em; line-height: 1.1; }
+  .nav-wordmark span { display: block; font-size: 0.58rem; font-weight: 400; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; }
+  .nav-back { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; display: flex; align-items: center; gap: 8px; transition: color 0.3s; }
+  .nav-back:hover { color: var(--gold-light); }
+
+  /* HERO */
+  .page-hero {
+    min-height: 42vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 140px 40px 80px; position: relative; overflow: hidden;
+  }
+  .page-hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(201,146,42,0.1) 0%, transparent 70%);
+  }
+  .page-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; animation: fadeUp 0.8s ease both; }
+  .page-title { font-family: 'Cinzel Decorative', serif; font-size: clamp(2rem, 5vw, 4rem); font-weight: 900; color: var(--gold-light); text-shadow: 0 0 60px rgba(201,146,42,0.25); margin-bottom: 16px; animation: fadeUp 0.8s 0.1s ease both; line-height: 1.1; }
+  .page-subtitle { font-size: 1rem; color: var(--muted); line-height: 1.8; max-width: 560px; animation: fadeUp 0.8s 0.2s ease both; }
+  .divider { width: 60px; height: 2px; background: linear-gradient(to right, var(--gold), transparent); margin: 20px auto; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* MAIN LAYOUT */
+  .contact-layout {
+    display: grid; grid-template-columns: 1fr 1.4fr; gap: 0;
+    max-width: 1200px; margin: 0 auto; padding: 80px 48px 120px;
+    align-items: start;
+  }
+
+  /* LEFT — INFO */
+  .contact-info { padding-right: 64px; }
+  .info-section { margin-bottom: 48px; }
+  .info-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.4em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+  .info-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold-pale); margin-bottom: 16px; line-height: 1.3; }
+  .info-body { font-size: 0.9rem; color: var(--muted); line-height: 1.9; }
+
+  .contact-card {
+    background: var(--mid); border: 1px solid rgba(201,146,42,0.15);
+    padding: 28px; margin-bottom: 2px;
+    display: flex; align-items: flex-start; gap: 20px;
+    transition: all 0.3s;
+  }
+  .contact-card:hover { background: var(--warm); border-color: rgba(201,146,42,0.3); }
+  .contact-card-icon { font-size: 1.4rem; min-width: 28px; margin-top: 2px; }
+  .contact-card-label { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .contact-card-value { font-size: 0.9rem; color: var(--text); }
+  .contact-card-value a { color: var(--text); text-decoration: none; transition: color 0.2s; }
+  .contact-card-value a:hover { color: var(--gold-light); }
+
+  .social-row { display: flex; gap: 10px; margin-top: 28px; flex-wrap: wrap; }
+  .social-btn {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--mid); border: 1px solid rgba(201,146,42,0.2);
+    color: var(--muted); text-decoration: none;
+    font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 10px 16px; transition: all 0.25s; border-radius: 2px;
+  }
+  .social-btn:hover { border-color: var(--gold); color: var(--gold-light); background: rgba(201,146,42,0.08); }
+  .social-btn svg { width: 14px; height: 14px; }
+
+  /* RIGHT — FORM */
+  .contact-form-wrap {
+    background: var(--dark); border: 1px solid rgba(201,146,42,0.2);
+    padding: 56px 48px;
+    position: sticky; top: 100px;
+  }
+  .form-title { font-family: 'Cinzel', serif; font-size: 1.3rem; color: var(--gold-light); margin-bottom: 8px; }
+  .form-subtitle { font-size: 0.85rem; color: var(--muted); margin-bottom: 40px; line-height: 1.6; }
+
+  .form-group { margin-bottom: 22px; }
+  .form-group label { display: block; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--mid); border: 1px solid rgba(201,146,42,0.2);
+    color: var(--text); font-family: 'Lato', sans-serif; font-size: 0.9rem;
+    padding: 14px 16px; outline: none; transition: border-color 0.3s; resize: vertical;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--gold); }
+  .form-group select { appearance: none; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+  .btn-submit {
+    width: 100%; background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--deep); font-family: 'Cinzel', serif; font-size: 0.82rem;
+    font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase;
+    padding: 18px; border: none; cursor: pointer; transition: all 0.3s;
+    margin-top: 8px;
+  }
+  .btn-submit:hover { box-shadow: 0 8px 32px rgba(201,146,42,0.4); transform: translateY(-2px); }
+  .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--dark); border: 1px solid rgba(201,146,42,0.4);
+    color: var(--text); padding: 16px 28px; font-size: 0.88rem; z-index: 9998;
+    transition: transform 0.4s cubic-bezier(0.34,1.56,0.64,1); border-radius: 2px;
+    max-width: 400px; text-align: center; pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--success); color: var(--success); }
+  #toast.error { border-color: var(--error); color: #FF8080; }
+
+  /* FOOTER */
+  .page-footer {
+    background: var(--deep); border-top: 1px solid rgba(201,146,42,0.1);
+    padding: 40px 48px; text-align: center;
+  }
+  .page-footer-text { font-size: 0.78rem; color: var(--muted); }
+  .page-footer-text a { color: var(--gold); text-decoration: none; }
+
+  @media (max-width: 900px) {
+    .contact-layout { grid-template-columns: 1fr; padding: 40px 24px 80px; }
+    .contact-info { padding-right: 0; margin-bottom: 48px; }
+    .contact-form-wrap { padding: 36px 24px; position: static; }
+    nav { padding: 16px 24px; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- NAV -->
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg class="nav-emblem" viewBox="0 0 42 42" fill="none">
+      <circle cx="21" cy="21" r="20" stroke="#C9922A" stroke-width="1.5" opacity="0.4"/>
+      <path d="M21 8 C21 8, 30 14, 30 22 C30 28, 25.5 33, 21 34 C16.5 33, 12 28, 12 22 C12 14, 21 8, 21 8Z" fill="rgba(201,146,42,0.15)" stroke="#C9922A" stroke-width="1.2"/>
+      <path d="M17 22 Q21 17 25 22" stroke="#F0C060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="21" cy="22" r="2" fill="#F0C060"/>
+    </svg>
+    <div class="nav-wordmark">LNI Global <span>Lehem Network International</span></div>
+  </a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<!-- HERO -->
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-label">Reach Us</div>
+  <h1 class="page-title">Contact Global HQ</h1>
+  <div class="divider"></div>
+  <p class="page-subtitle">Whether you have a question, a partnership enquiry, or simply want to connect — our Global HQ team in Lagos is ready to hear from you.</p>
+</div>
+
+<!-- MAIN -->
+<div class="contact-layout">
+
+  <!-- LEFT INFO -->
+  <div class="contact-info">
+    <div class="info-section">
+      <div class="info-label">Global Headquarters</div>
+      <div class="info-title">We're Based in Lagos.<br>We Serve Every Nation.</div>
+      <p class="info-body">LNI Global HQ coordinates all networks, pioneers new territories, and supports every practitioner community around the world. Our team typically responds within 48 hours.</p>
+    </div>
+
+    <div class="contact-card">
+      <div class="contact-card-icon">📍</div>
+      <div>
+        <div class="contact-card-label">Address</div>
+        <div class="contact-card-value">Lagos, Nigeria<br>West Africa</div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-card-icon">✉️</div>
+      <div>
+        <div class="contact-card-label">General Enquiries</div>
+        <div class="contact-card-value"><a href="mailto:global@lehemnetwork.org">global@lehemnetwork.org</a></div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-card-icon">🤝</div>
+      <div>
+        <div class="contact-card-label">Partnerships</div>
+        <div class="contact-card-value"><a href="mailto:partners@lehemnetwork.org">partners@lehemnetwork.org</a></div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-card-icon">🌱</div>
+      <div>
+        <div class="contact-card-label">Pioneer Enquiries</div>
+        <div class="contact-card-value"><a href="mailto:pioneers@lehemnetwork.org">pioneers@lehemnetwork.org</a></div>
+      </div>
+    </div>
+    <div class="contact-card">
+      <div class="contact-card-icon">👥</div>
+      <div>
+        <div class="contact-card-label">Network Leaders</div>
+        <div class="contact-card-value"><a href="mailto:leaders@lehemnetwork.org">leaders@lehemnetwork.org</a></div>
+      </div>
+    </div>
+
+    <div class="social-row">
+      <a href="https://instagram.com/LehemNetwork" target="_blank" class="social-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        Instagram
+      </a>
+      <a href="https://youtube.com/@LehemNetwork" target="_blank" class="social-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+        YouTube
+      </a>
+      <a href="https://twitter.com/LehemNetwork" target="_blank" class="social-btn">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter / X
+      </a>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM -->
+  <div class="contact-form-wrap">
+    <div class="form-title">Send Us a Message</div>
+    <p class="form-subtitle">Fill in the form below and our Global HQ team will respond within 48 hours.</p>
+
+    <div class="form-row">
+      <div class="form-group"><label>First Name *</label><input type="text" id="hqFirstName" placeholder="John"/></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="hqLastName" placeholder="Adebayo"/></div>
+    </div>
+    <div class="form-group"><label>Email Address *</label><input type="email" id="hqEmail" placeholder="john@email.com"/></div>
+    <div class="form-group"><label>Country</label><input type="text" id="hqCountry" placeholder="Your country"/></div>
+    <div class="form-group">
+      <label>Subject *</label>
+      <select id="hqSubject">
+        <option value="">Select a subject...</option>
+        <option>General Enquiry</option>
+        <option>Partnership / Collaboration</option>
+        <option>Starting a Network (Pioneer)</option>
+        <option>Joining an Existing Network</option>
+        <option>Prayer Request</option>
+        <option>Media / Press</option>
+        <option>Other</option>
+      </select>
+    </div>
+    <div class="form-group"><label>Message *</label><textarea id="hqMessage" rows="6" placeholder="Write your message here..."></textarea></div>
+    <button class="btn-submit" id="hqSubmitBtn" onclick="submitHQContact()">Send Message to Global HQ →</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="page-footer">
+  <p class="page-footer-text">© 2025 Lehem Network International · <a href="privacy.html">Privacy Policy</a> · <a href="index.html">Back to Home</a></p>
+</div>
+
+<!-- FIREBASE + WEB3FORMS -->
+<script type="module">
+  import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getFirestore, collection, addDoc, serverTimestamp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+  const firebaseConfig = {
+    apiKey: "YOUR_API_KEY",
+    authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+    projectId: "YOUR_PROJECT_ID",
+    storageBucket: "YOUR_PROJECT_ID.appspot.com",
+    messagingSenderId: "YOUR_SENDER_ID",
+    appId: "YOUR_APP_ID"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  window.__db = db;
+  window.__addDoc = addDoc;
+  window.__collection = collection;
+  window.__serverTimestamp = serverTimestamp;
+</script>
+
+<script>
+const WEB3FORMS_KEY = 'YOUR_WEB3FORMS_ACCESS_KEY';
+
+function showToast(msg, type = 'success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'show ' + type;
+  clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 4000);
+}
+
+async function submitHQContact() {
+  const btn = document.getElementById('hqSubmitBtn');
+  const firstName = document.getElementById('hqFirstName').value.trim();
+  const lastName = document.getElementById('hqLastName').value.trim();
+  const email = document.getElementById('hqEmail').value.trim();
+  const country = document.getElementById('hqCountry').value.trim();
+  const subject = document.getElementById('hqSubject').value;
+  const message = document.getElementById('hqMessage').value.trim();
+
+  if (!firstName || !email || !subject || !message) {
+    showToast('Please fill in all required fields.', 'error'); return;
+  }
+  if (!email.includes('@')) { showToast('Please enter a valid email.', 'error'); return; }
+
+  btn.disabled = true; btn.textContent = 'Sending...';
+
+  try {
+    // Save to Firebase
+    if (window.__db) {
+      await window.__addDoc(window.__collection(window.__db, 'contact_hq'), {
+        firstName, lastName, email, country, subject, message,
+        createdAt: window.__serverTimestamp()
+      });
+    }
+
+    // Send email via Web3Forms
+    if (WEB3FORMS_KEY !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
+      await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          access_key: WEB3FORMS_KEY,
+          subject: '✉ HQ Contact: ' + subject + ' — ' + firstName + ' ' + lastName,
+          from_name: firstName + ' ' + lastName,
+          email, country, message,
+          form_type: 'Contact Global HQ'
+        })
+      });
+    }
+
+    showToast('Message sent! We\'ll respond within 48 hours.', 'success');
+    // Clear form
+    ['hqFirstName','hqLastName','hqEmail','hqCountry','hqMessage'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('hqSubject').value = '';
+
+  } catch(err) {
+    showToast('Something went wrong. Please email us directly.', 'error');
+    console.error(err);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Send Message to Global HQ →';
+  }
+}
+</script>
+</body>
+</html>
