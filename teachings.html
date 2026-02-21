@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LNI Teachings — Lehem Network International</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cinzel:wght@400;600;700&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #C9922A; --gold-light: #F0C060; --gold-pale: #FAE8B0;
+    --deep: #0A0604; --dark: #110C05; --mid: #1E1508; --warm: #2A1F0E;
+    --text: #EDE0C8; --muted: #9A8870; --teal: #30C0A0;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { background: var(--deep); color: var(--text); font-family: 'Lato', sans-serif; font-weight: 300; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 9999; opacity: 0.4;
+  }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 48px; background: rgba(10,6,4,0.97);
+    border-bottom: 1px solid rgba(201,146,42,0.15); backdrop-filter: blur(8px);
+  }
+  .nav-logo { display: flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-emblem { width: 38px; height: 38px; }
+  .nav-wordmark { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: var(--gold-light); letter-spacing: 0.15em; line-height: 1.1; }
+  .nav-wordmark span { display: block; font-size: 0.58rem; font-weight: 400; color: var(--muted); letter-spacing: 0.3em; text-transform: uppercase; }
+  .nav-back { font-family: 'Cinzel', serif; font-size: 0.72rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s; }
+  .nav-back:hover { color: var(--gold-light); }
+
+  /* HERO */
+  .page-hero {
+    min-height: 44vh; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    text-align: center; padding: 140px 40px 80px; position: relative; overflow: hidden;
+  }
+  .page-hero-bg { position: absolute; inset: 0; background: radial-gradient(ellipse 70% 60% at 50% 50%, rgba(201,146,42,0.11) 0%, transparent 70%); }
+  .page-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; animation: fadeUp 0.8s ease both; }
+  .page-title { font-family: 'Cinzel Decorative', serif; font-size: clamp(2rem, 5vw, 4.5rem); font-weight: 900; color: var(--gold-light); text-shadow: 0 0 60px rgba(201,146,42,0.25); margin-bottom: 16px; animation: fadeUp 0.8s 0.1s ease both; }
+  .page-subtitle { font-size: 1rem; color: var(--muted); line-height: 1.8; max-width: 560px; animation: fadeUp 0.8s 0.2s ease both; }
+  .divider { width: 60px; height: 2px; background: linear-gradient(to right, var(--gold), transparent); margin: 20px auto; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* FILTER TABS */
+  .filter-bar { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; padding: 0 48px 60px; }
+  .filter-btn {
+    background: var(--mid); border: 1px solid rgba(201,146,42,0.2);
+    color: var(--muted); font-family: 'Cinzel', serif; font-size: 0.68rem;
+    letter-spacing: 0.2em; text-transform: uppercase; padding: 10px 20px;
+    cursor: pointer; transition: all 0.25s; border-radius: 2px;
+  }
+  .filter-btn:hover, .filter-btn.active { background: var(--warm); border-color: var(--gold); color: var(--gold-light); }
+
+  /* MAIN */
+  .teachings-wrap { max-width: 1300px; margin: 0 auto; padding: 0 48px 120px; }
+
+  /* FEATURED VIDEO — large top slot */
+  .featured-section { margin-bottom: 72px; }
+  .section-heading-row { display: flex; align-items: center; gap: 20px; margin-bottom: 32px; }
+  .section-heading-row h2 { font-family: 'Cinzel', serif; font-size: 1rem; font-weight: 700; color: var(--gold-pale); letter-spacing: 0.2em; text-transform: uppercase; }
+  .section-line { flex: 1; height: 1px; background: linear-gradient(to right, rgba(201,146,42,0.3), transparent); }
+
+  .featured-video { position: relative; background: var(--mid); border: 1px solid rgba(201,146,42,0.2); overflow: hidden; }
+  .featured-video-inner { display: grid; grid-template-columns: 1.4fr 1fr; }
+  .video-embed-wrap { position: relative; aspect-ratio: 16/9; background: #000; }
+  .video-embed-wrap iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+  .video-placeholder {
+    position: absolute; inset: 0; background: var(--mid);
+    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+    cursor: pointer; transition: background 0.3s;
+  }
+  .video-placeholder:hover { background: var(--warm); }
+  .play-icon { width: 64px; height: 64px; background: rgba(201,146,42,0.15); border: 2px solid rgba(201,146,42,0.4); border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
+  .video-placeholder:hover .play-icon { background: rgba(201,146,42,0.3); border-color: var(--gold); }
+  .play-icon svg { width: 24px; height: 24px; fill: var(--gold-light); margin-left: 4px; }
+  .placeholder-label { font-family: 'Cinzel', serif; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+
+  .featured-info { padding: 40px; display: flex; flex-direction: column; justify-content: center; }
+  .video-tag { display: inline-block; font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); background: rgba(201,146,42,0.1); border: 1px solid rgba(201,146,42,0.2); padding: 6px 12px; margin-bottom: 16px; }
+  .video-title { font-family: 'Cinzel', serif; font-size: 1.4rem; color: var(--gold-pale); line-height: 1.3; margin-bottom: 16px; }
+  .video-speaker { font-size: 0.82rem; color: var(--gold); margin-bottom: 12px; }
+  .video-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.8; margin-bottom: 24px; }
+  .video-meta { display: flex; gap: 20px; font-size: 0.75rem; color: var(--muted); }
+  .video-meta span { display: flex; align-items: center; gap: 6px; }
+  .btn-watch {
+    display: inline-flex; align-items: center; gap: 10px;
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--deep); font-family: 'Cinzel', serif; font-size: 0.72rem;
+    font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase;
+    padding: 14px 28px; border: none; cursor: pointer; text-decoration: none;
+    transition: all 0.3s; margin-top: 24px; width: fit-content;
+  }
+  .btn-watch:hover { box-shadow: 0 8px 28px rgba(201,146,42,0.4); transform: translateY(-2px); }
+
+  /* VIDEO GRID */
+  .videos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-bottom: 72px; }
+
+  .video-card { background: var(--mid); transition: all 0.3s; cursor: pointer; }
+  .video-card:hover { background: var(--warm); transform: translateY(-3px); }
+  .video-thumb { position: relative; aspect-ratio: 16/9; background: var(--dark); overflow: hidden; }
+  .video-thumb iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; pointer-events: none; }
+  .video-thumb-overlay {
+    position: absolute; inset: 0; background: rgba(10,6,4,0.5);
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s;
+  }
+  .video-card:hover .video-thumb-overlay { background: rgba(10,6,4,0.2); }
+  .thumb-play { width: 44px; height: 44px; background: rgba(201,146,42,0.8); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .thumb-play svg { width: 16px; height: 16px; fill: var(--deep); margin-left: 3px; }
+  .video-card-body { padding: 24px; }
+  .video-card-tag { font-family: 'Cinzel', serif; font-size: 0.58rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 8px; }
+  .video-card-title { font-family: 'Cinzel', serif; font-size: 0.95rem; color: var(--gold-pale); line-height: 1.4; margin-bottom: 8px; }
+  .video-card-speaker { font-size: 0.78rem; color: var(--muted); margin-bottom: 8px; }
+  .video-card-meta { font-size: 0.7rem; color: var(--muted); opacity: 0.7; }
+
+  /* ARTICLES SECTION */
+  .articles-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+  .article-card { background: var(--mid); padding: 36px; transition: all 0.3s; text-decoration: none; display: block; position: relative; overflow: hidden; }
+  .article-card::before { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 2px; background: linear-gradient(to right, var(--gold), transparent); transform: scaleX(0); transform-origin: left; transition: transform 0.4s; }
+  .article-card:hover::before { transform: scaleX(1); }
+  .article-card:hover { background: var(--warm); }
+  .article-tag { font-family: 'Cinzel', serif; font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; display: block; }
+  .article-title { font-family: 'Cinzel', serif; font-size: 1.05rem; color: var(--gold-pale); line-height: 1.4; margin-bottom: 12px; }
+  .article-excerpt { font-size: 0.86rem; color: var(--muted); line-height: 1.8; margin-bottom: 20px; }
+  .article-footer { display: flex; align-items: center; justify-content: space-between; }
+  .article-author { font-size: 0.75rem; color: var(--gold); }
+  .article-read { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); }
+  .article-num { position: absolute; top: 20px; right: 24px; font-family: 'Cinzel', serif; font-size: 3rem; color: rgba(201,146,42,0.06); font-weight: 700; line-height: 1; }
+
+  /* YOUTUBE CTA */
+  .yt-cta { background: var(--dark); border: 1px solid rgba(201,146,42,0.2); padding: 56px; text-align: center; margin-top: 72px; position: relative; overflow: hidden; }
+  .yt-cta::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(201,146,42,0.05) 0%, transparent 70%); }
+  .yt-cta-label { font-family: 'Cinzel', serif; font-size: 0.65rem; letter-spacing: 0.5em; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; position: relative; }
+  .yt-cta-title { font-family: 'Cinzel', serif; font-size: 1.8rem; color: var(--gold-pale); margin-bottom: 16px; position: relative; }
+  .yt-cta-text { font-size: 0.9rem; color: var(--muted); line-height: 1.8; max-width: 480px; margin: 0 auto 32px; position: relative; }
+  .btn-yt { display: inline-flex; align-items: center; gap: 12px; background: #FF0000; color: white; font-family: 'Cinzel', serif; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; padding: 16px 36px; text-decoration: none; transition: all 0.3s; position: relative; }
+  .btn-yt:hover { background: #CC0000; box-shadow: 0 8px 24px rgba(255,0,0,0.3); transform: translateY(-2px); }
+  .btn-yt svg { width: 20px; height: 20px; fill: white; }
+
+  /* VIDEO MODAL */
+  .video-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; padding: 40px; }
+  .video-modal-overlay.open { display: flex; }
+  .video-modal { width: 100%; max-width: 900px; position: relative; }
+  .video-modal-close { position: absolute; top: -44px; right: 0; background: none; border: none; color: var(--muted); font-size: 1.6rem; cursor: pointer; transition: color 0.2s; }
+  .video-modal-close:hover { color: var(--gold-light); }
+  .video-modal-frame { position: relative; aspect-ratio: 16/9; background: #000; }
+  .video-modal-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: none; }
+
+  .page-footer { background: var(--deep); border-top: 1px solid rgba(201,146,42,0.1); padding: 40px 48px; text-align: center; }
+  .page-footer p { font-size: 0.78rem; color: var(--muted); }
+  .page-footer a { color: var(--gold); text-decoration: none; }
+
+  @media (max-width: 1024px) { .videos-grid { grid-template-columns: repeat(2, 1fr); } .featured-video-inner { grid-template-columns: 1fr; } }
+  @media (max-width: 768px) { nav { padding: 16px 24px; } .teachings-wrap, .filter-bar { padding-left: 24px; padding-right: 24px; } .videos-grid { grid-template-columns: 1fr; } .articles-grid { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+
+<div class="video-modal-overlay" id="videoModal">
+  <div class="video-modal">
+    <button class="video-modal-close" onclick="closeVideoModal()">✕</button>
+    <div class="video-modal-frame">
+      <iframe id="modalIframe" src="" allowfullscreen allow="autoplay; encrypted-media"></iframe>
+    </div>
+  </div>
+</div>
+
+<nav>
+  <a href="index.html" class="nav-logo">
+    <svg class="nav-emblem" viewBox="0 0 42 42" fill="none">
+      <circle cx="21" cy="21" r="20" stroke="#C9922A" stroke-width="1.5" opacity="0.4"/>
+      <path d="M21 8 C21 8, 30 14, 30 22 C30 28, 25.5 33, 21 34 C16.5 33, 12 28, 12 22 C12 14, 21 8, 21 8Z" fill="rgba(201,146,42,0.15)" stroke="#C9922A" stroke-width="1.2"/>
+      <path d="M17 22 Q21 17 25 22" stroke="#F0C060" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <circle cx="21" cy="22" r="2" fill="#F0C060"/>
+    </svg>
+    <div class="nav-wordmark">LNI Global <span>Lehem Network International</span></div>
+  </a>
+  <a href="index.html" class="nav-back">← Back to Home</a>
+</nav>
+
+<div class="page-hero">
+  <div class="page-hero-bg"></div>
+  <div class="page-label">Word & Spirit</div>
+  <h1 class="page-title">LNI Teachings</h1>
+  <div class="divider"></div>
+  <p class="page-subtitle">Messages, articles and resources to equip every practitioner. Truth that builds, sends, and sustains.</p>
+</div>
+
+<!-- FILTER TABS -->
+<div class="filter-bar">
+  <button class="filter-btn active" onclick="filterContent('all', this)">All</button>
+  <button class="filter-btn" onclick="filterContent('healing', this)">Healing & Miracles</button>
+  <button class="filter-btn" onclick="filterContent('evangelism', this)">Evangelism</button>
+  <button class="filter-btn" onclick="filterContent('prayer', this)">Prayer</button>
+  <button class="filter-btn" onclick="filterContent('kingdom', this)">Kingdom Life</button>
+  <button class="filter-btn" onclick="filterContent('pioneer', this)">Pioneer</button>
+</div>
+
+<div class="teachings-wrap">
+
+  <!-- ══════════════════════════════════════════════════════════
+       FEATURED VIDEO
+       To update: change the youtubeId to your video's ID.
+       Find the ID in your YouTube URL after "?v="
+       e.g. youtube.com/watch?v=ABC123 → ID is ABC123
+       ══════════════════════════════════════════════════════════ -->
+  <div class="featured-section">
+    <div class="section-heading-row">
+      <h2>Featured Message</h2>
+      <div class="section-line"></div>
+    </div>
+    <div class="featured-video">
+      <div class="featured-video-inner">
+        <div class="video-embed-wrap">
+          <!--
+            INSTRUCTIONS: Replace ADD_YOUR_VIDEO_ID_HERE with your YouTube video ID.
+            Example: if your video URL is youtube.com/watch?v=dQw4w9WgXcQ
+            then replace ADD_YOUR_VIDEO_ID_HERE with dQw4w9WgXcQ
+          -->
+          <div class="video-placeholder" onclick="openVideoModal('ADD_YOUR_VIDEO_ID_HERE')">
+            <div class="play-icon">
+              <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+            </div>
+            <span class="placeholder-label">Click to Watch</span>
+          </div>
+        </div>
+        <div class="featured-info">
+          <span class="video-tag">Featured Teaching</span>
+          <h2 class="video-title">Add Your Featured Message Title Here</h2>
+          <div class="video-speaker">by [Speaker Name] · LNI Global</div>
+          <p class="video-desc">Add a short description of this message here. What will practitioners learn? What does it address? Keep it 2–3 sentences.</p>
+          <div class="video-meta">
+            <span>📅 [Date]</span>
+            <span>⏱ [Duration]</span>
+            <span>🏷 [Category]</span>
+          </div>
+          <button class="btn-watch" onclick="openVideoModal('ADD_YOUR_VIDEO_ID_HERE')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+            Watch Message
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════════
+       VIDEO GRID
+       To add a video: copy one <div class="video-card"> block,
+       paste it, and update the youtubeId and text fields.
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section-heading-row">
+    <h2>All Messages</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="videos-grid" id="videosGrid">
+
+    <!-- VIDEO CARD TEMPLATE — duplicate this block for each new video -->
+    <div class="video-card" data-category="healing" onclick="openVideoModal('ADD_VIDEO_ID_1')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <!-- Thumbnail loads automatically from YouTube using the video ID -->
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_1/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Healing & Miracles</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+    <div class="video-card" data-category="evangelism" onclick="openVideoModal('ADD_VIDEO_ID_2')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_2/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Evangelism</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+    <div class="video-card" data-category="prayer" onclick="openVideoModal('ADD_VIDEO_ID_3')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_3/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Prayer</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+    <div class="video-card" data-category="kingdom" onclick="openVideoModal('ADD_VIDEO_ID_4')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_4/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Kingdom Life</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+    <div class="video-card" data-category="pioneer" onclick="openVideoModal('ADD_VIDEO_ID_5')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_5/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Pioneer</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+    <div class="video-card" data-category="healing" onclick="openVideoModal('ADD_VIDEO_ID_6')">
+      <div class="video-thumb">
+        <div class="video-thumb-overlay">
+          <div class="thumb-play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></div>
+        </div>
+        <img src="https://img.youtube.com/vi/ADD_VIDEO_ID_6/mqdefault.jpg" style="width:100%;height:100%;object-fit:cover;" alt="Video thumbnail" onerror="this.style.display='none'"/>
+      </div>
+      <div class="video-card-body">
+        <div class="video-card-tag">Healing & Miracles</div>
+        <div class="video-card-title">Message Title Goes Here</div>
+        <div class="video-card-speaker">Speaker Name · LNI [City]</div>
+        <div class="video-card-meta">[Date] · [Duration]</div>
+      </div>
+    </div>
+
+  </div><!-- end videos-grid -->
+
+  <!-- ══════════════════════════════════════════════════════════
+       ARTICLES
+       To add an article: copy one article-card block,
+       update the title, excerpt, and href link.
+       For the link: if it's a Google Doc, share the doc publicly
+       and paste that link. Or link to a future blog page.
+       ══════════════════════════════════════════════════════════ -->
+  <div class="section-heading-row" style="margin-top:72px;">
+    <h2>Articles & Written Resources</h2>
+    <div class="section-line"></div>
+  </div>
+  <div class="articles-grid" id="articlesGrid">
+
+    <a href="#" class="article-card" data-category="kingdom">
+      <div class="article-num">01</div>
+      <span class="article-tag">Kingdom Life</span>
+      <div class="article-title">Article Title — What God Has Called Every Practitioner To</div>
+      <p class="article-excerpt">A short summary of this article goes here. What is the core argument? What will the reader take away? Keep it 2–3 sentences to draw them in.</p>
+      <div class="article-footer">
+        <span class="article-author">by [Author Name]</span>
+        <span class="article-read">Read Article →</span>
+      </div>
+    </a>
+
+    <a href="#" class="article-card" data-category="evangelism">
+      <div class="article-num">02</div>
+      <span class="article-tag">Evangelism</span>
+      <div class="article-title">Article Title — How to Conduct Yourself in Marketplace Ministry</div>
+      <p class="article-excerpt">A short summary of this article goes here. What is the core argument? What will the reader take away? Keep it 2–3 sentences to draw them in.</p>
+      <div class="article-footer">
+        <span class="article-author">by [Author Name]</span>
+        <span class="article-read">Read Article →</span>
+      </div>
+    </a>
+
+    <a href="#" class="article-card" data-category="prayer">
+      <div class="article-num">03</div>
+      <span class="article-tag">Prayer</span>
+      <div class="article-title">Article Title — Building a Culture of Prayer in Your Network</div>
+      <p class="article-excerpt">A short summary of this article goes here. What is the core argument? What will the reader take away? Keep it 2–3 sentences to draw them in.</p>
+      <div class="article-footer">
+        <span class="article-author">by [Author Name]</span>
+        <span class="article-read">Read Article →</span>
+      </div>
+    </a>
+
+    <a href="#" class="article-card" data-category="pioneer">
+      <div class="article-num">04</div>
+      <span class="article-tag">Pioneer</span>
+      <div class="article-title">Article Title — The Pioneer's Call: Starting Where No One Has Gone</div>
+      <p class="article-excerpt">A short summary of this article goes here. What is the core argument? What will the reader take away? Keep it 2–3 sentences to draw them in.</p>
+      <div class="article-footer">
+        <span class="article-author">by [Author Name]</span>
+        <span class="article-read">Read Article →</span>
+      </div>
+    </a>
+
+  </div>
+
+  <!-- YOUTUBE CHANNEL CTA -->
+  <div class="yt-cta">
+    <div class="yt-cta-label">Subscribe for More</div>
+    <h2 class="yt-cta-title">All Messages Are on YouTube</h2>
+    <p class="yt-cta-text">Every teaching, message, and recorded service from LNI networks worldwide is uploaded to our YouTube channel. Subscribe so you never miss a new release.</p>
+    <a href="https://youtube.com/@LehemNetwork" target="_blank" class="btn-yt">
+      <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+      Subscribe to @LehemNetwork
+    </a>
+  </div>
+
+</div><!-- end teachings-wrap -->
+
+<div class="page-footer">
+  <p>© 2025 Lehem Network International · <a href="privacy.html">Privacy Policy</a> · <a href="index.html">Back to Home</a></p>
+</div>
+
+<script>
+// ── VIDEO MODAL ──
+function openVideoModal(videoId) {
+  if (!videoId || videoId.includes('ADD_VIDEO_ID') || videoId.includes('ADD_YOUR_VIDEO_ID')) {
+    alert('Video coming soon! Subscribe to @LehemNetwork on YouTube to be notified.');
+    return;
+  }
+  document.getElementById('modalIframe').src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+  document.getElementById('videoModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeVideoModal() {
+  document.getElementById('modalIframe').src = '';
+  document.getElementById('videoModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('videoModal').addEventListener('click', function(e) {
+  if (e.target === this) closeVideoModal();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeVideoModal(); });
+
+// ── CATEGORY FILTER ──
+function filterContent(category, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Filter videos
+  document.querySelectorAll('.video-card').forEach(card => {
+    if (category === 'all' || card.dataset.category === category) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // Filter articles
+  document.querySelectorAll('.article-card').forEach(card => {
+    if (category === 'all' || card.dataset.category === category) {
+      card.style.display = 'block';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+}
+</script>
+
+</body>
+</html>
