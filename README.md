@@ -2,8 +2,8 @@
 # LNI Global — Lehem Network International
 ### Official Website & Network Portal
 
-**Live Site:** [lni.netlify.app](https://lni.netlify.app)  
-**Ministry:** Lehem Network International  
+**Live Site:** https://LehemNetwork.org/
+**Ministry:** Leemm Network International  
 **Tagline:** Lagos · Global · Every Nation
 
 ---
@@ -339,8 +339,7 @@ These files are not in this repository. Distribute them directly or via Google D
 
 **Ministry:** Lehem Network International  
 **Website:** [lni.netlify.app](https://lni.netlify.app)  
-**Email:** leaders@lehemnetworkinternational.org
-
+**Email:** leaders@lehemnetwork.org
 *לֶחֶם — House of Bread · A Living Network Across Every Nation*
 
 
