@@ -1631,7 +1631,7 @@ hr.subtle { border: none; border-top: 1px solid rgba(201,146,42,0.08); margin: 1
 ══════════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
-import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged }
+import { getAuth, signInWithEmailAndPassword, signOut, sendPasswordResetEmail, onAuthStateChanged, setPersistence, browserLocalPersistence }
   from 'https://www.gstatic.com/firebasejs/10.7.0/firebase-auth.js';
 import { getFirestore, doc, getDoc, setDoc, addDoc, collection, query, where,
   orderBy, getDocs, onSnapshot, updateDoc, serverTimestamp, increment }
@@ -1660,6 +1660,7 @@ let unsubAnnouncements = null;
 // ── AUTH STATE ──
 onAuthStateChanged(auth, async (user) => {
   if (user) {
+    await setPersistence(auth, browserLocalPersistence);
     currentUser = user;
     await loadLeaderProfile();
     bootApp();
