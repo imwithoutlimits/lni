@@ -1,27 +1,972 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Total Man Enroll</title>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.0/firebase-database.js"></script>
-    <script>
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-            appId: "YOUR_APP_ID"
-        };
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Calling — Total Man 100-Day Journey | LNI Global</title>
+<meta property="og:title" content="Are You Ready? The Total Man — 100-Day Journey">
+<meta property="og:description" content="This is not a form. This is a calling. 22nd March 2026. Lehem Network International.">
+<meta property="og:image" content="https://lehemnetwork.org/lni-og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cinzel+Decorative:wght@700&family=Lato:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gold:#C9922A;--gold-l:#F0C060;--gold-p:#FAE8B0;
+  --deep:#070503;--dark:#110D06;--dim:#3A2E1A;
+  --text:#EDE0C8;--muted:#7A6A50;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Lato',sans-serif;background:var(--deep);color:var(--text)}
 
-        // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
-    </script>
+#canvas{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+/* ── SCENES ── */
+.scene{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 24px 80px;z-index:10;
+  opacity:0;pointer-events:none;transition:opacity 0.9s ease;
+}
+.scene.active{opacity:1;pointer-events:all}
+
+/* ── PROGRESS ── */
+#prog{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);
+  z-index:100;display:flex;align-items:center;gap:8px;
+  opacity:0;transition:opacity 0.5s;
+}
+#prog.show{opacity:1}
+.pd{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--dim);transition:all 0.4s;
+}
+.pd.done{background:var(--gold-l)}
+.pd.now{
+  background:var(--gold);transform:scale(1.5);
+  box-shadow:0 0 10px rgba(201,146,42,0.6);
+}
+
+/* ── BACK BTN ── */
+#nav{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:100;opacity:0;transition:opacity 0.5s;
+}
+#nav.show{opacity:1}
+.nbtn{
+  background:transparent;border:1px solid var(--dim);border-radius:30px;
+  padding:8px 22px;color:var(--muted);font-family:'Lato',sans-serif;
+  font-size:12px;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
+}
+.nbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* ── BURST ── */
+#burst{
+  position:fixed;inset:0;pointer-events:none;z-index:200;
+  display:flex;align-items:center;justify-content:center;opacity:0;
+}
+.bsym{
+  font-family:'Cinzel Decorative',serif;font-size:10rem;color:var(--gold);
+  text-shadow:0 0 80px rgba(201,146,42,0.9);opacity:0;transform:scale(0.2);
+}
+@keyframes bpop{
+  0%{opacity:0;transform:scale(0.2)}
+  35%{opacity:0.7;transform:scale(1.15)}
+  100%{opacity:0;transform:scale(2)}
+}
+.bsym.go{animation:bpop 0.65s ease forwards}
+
+/* ── INTRO ── */
+#si{text-align:center}
+.i-tag{
+  font-size:11px;color:var(--gold);letter-spacing:0.35em;
+  text-transform:uppercase;margin-bottom:36px;
+  opacity:0;animation:fup 1s 0.5s ease forwards;
+}
+.i-title{
+  font-family:'Cinzel Decorative',serif;
+  font-size:clamp(3rem,10vw,6.5rem);
+  color:var(--gold-p);line-height:1;
+  opacity:0;animation:fup 1s 1s ease forwards;
+  text-shadow:0 0 100px rgba(201,146,42,0.25);
+}
+.i-title span{color:var(--gold)}
+.i-sub{
+  font-size:clamp(0.9rem,2.5vw,1.2rem);color:var(--muted);
+  margin-top:14px;font-style:italic;font-weight:300;
+  opacity:0;animation:fup 1s 1.8s ease forwards;
+}
+.i-date{
+  margin-top:20px;font-family:'Cinzel',serif;font-size:13px;
+  color:var(--gold);letter-spacing:0.2em;
+  opacity:0;animation:fup 1s 2.4s ease forwards;
+}
+.i-btn{
+  margin-top:52px;padding:18px 56px;
+  background:transparent;border:1px solid rgba(201,146,42,0.5);
+  border-radius:2px;color:var(--gold-p);
+  font-family:'Cinzel',serif;font-size:14px;
+  letter-spacing:0.25em;cursor:pointer;
+  transition:all 0.4s;position:relative;overflow:hidden;
+  opacity:0;animation:fup 1s 3s ease forwards;
+}
+.i-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform 0.4s;z-index:-1;
+}
+.i-btn:hover{color:var(--deep);border-color:var(--gold)}
+.i-btn:hover::before{transform:scaleX(1)}
+
+/* ── SCRIPTURE ── */
+.sw{text-align:center;max-width:580px}
+.st{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1rem,2.8vw,1.5rem);
+  color:var(--text);line-height:1.75;font-style:italic;
+  opacity:0;transform:translateY(20px);
+  transition:all 0.9s 0.3s;
+}
+.scene.active .st{opacity:1;transform:translateY(0)}
+.sr{
+  margin-top:18px;font-size:12px;color:var(--gold);
+  letter-spacing:0.2em;opacity:0;transition:opacity 0.6s 1.4s;
+}
+.scene.active .sr{opacity:1}
+.sb{
+  margin-top:44px;padding:13px 34px;
+  background:transparent;border:1px solid rgba(201,146,42,0.2);
+  border-radius:2px;color:var(--gold);font-family:'Cinzel',serif;
+  font-size:12px;letter-spacing:0.2em;cursor:pointer;
+  opacity:0;transition:opacity 0.6s 2.2s,all 0.3s;
+}
+.scene.active .sb{opacity:1}
+.sb:hover{background:rgba(201,146,42,0.07);border-color:var(--gold)}
+
+/* ── QUESTION SCENE ── */
+.qs{text-align:center;max-width:700px;width:100%}
+.qctx{
+  font-size:11px;color:var(--gold);letter-spacing:0.3em;
+  text-transform:uppercase;margin-bottom:16px;
+  opacity:0;transition:opacity 0.6s 0.1s;
+}
+.scene.active .qctx{opacity:1}
+.qq{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.3rem,4vw,2.2rem);
+  color:var(--gold-p);line-height:1.35;margin-bottom:10px;
+  opacity:0;transform:translateY(24px);transition:all 0.7s 0.25s;
+}
+.scene.active .qq{opacity:1;transform:translateY(0)}
+.qh{
+  font-size:13px;color:var(--muted);font-style:italic;
+  margin-bottom:36px;opacity:0;transition:opacity 0.6s 0.5s;
+}
+.scene.active .qh{opacity:1}
+
+/* TEXT INPUT */
+.qiw{
+  position:relative;max-width:460px;margin:0 auto;
+  opacity:0;transform:translateY(14px);transition:all 0.6s 0.5s;
+}
+.scene.active .qiw{opacity:1;transform:translateY(0)}
+.qi{
+  width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--dim);padding:14px 0;
+  color:var(--text);font-family:'Lato',sans-serif;
+  font-size:clamp(1.1rem,3vw,1.55rem);font-weight:300;
+  text-align:center;outline:none;
+  transition:border-color 0.3s;caret-color:var(--gold);
+}
+.qi:focus{border-bottom-color:var(--gold)}
+.qi::placeholder{color:var(--muted);font-style:italic}
+.qul{
+  position:absolute;bottom:0;left:50%;width:0;height:1px;
+  background:var(--gold);transform:translateX(-50%);transition:width 0.4s;
+}
+.qi:focus~.qul{width:100%}
+
+/* CONTINUE */
+.qgo{
+  display:inline-flex;align-items:center;gap:10px;
+  background:transparent;border:none;color:var(--gold);
+  font-family:'Cinzel',serif;font-size:13px;
+  letter-spacing:0.15em;cursor:pointer;
+  margin-top:32px;padding:8px 16px;
+  opacity:0;transition:opacity 0.4s,color 0.2s;
+}
+.qgo.on{opacity:1}
+.qgo:hover{color:var(--gold-l)}
+.qgo svg{width:17px;height:17px;transition:transform 0.2s}
+.qgo:hover svg{transform:translateX(4px)}
+.etip{
+  display:block;font-size:11px;color:var(--muted);
+  letter-spacing:0.08em;margin-top:8px;
+  opacity:0;transition:opacity 0.4s;
+}
+.etip.on{opacity:1}
+
+/* CHOICES */
+.cg{
+  display:grid;gap:10px;max-width:660px;margin:0 auto;
+  opacity:0;transform:translateY(14px);transition:all 0.6s 0.5s;
+}
+.scene.active .cg{opacity:1;transform:translateY(0)}
+.cg.c2{grid-template-columns:1fr 1fr}
+.cg.c3{grid-template-columns:1fr 1fr 1fr}
+.ch{
+  background:rgba(255,255,255,0.02);border:1px solid var(--dim);
+  border-radius:6px;padding:16px 20px;cursor:pointer;
+  transition:all 0.25s;text-align:left;position:relative;overflow:hidden;
+}
+.ch::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(201,146,42,0.07),transparent);
+  opacity:0;transition:opacity 0.3s;
+}
+.ch:hover{border-color:var(--gold);transform:translateY(-2px)}
+.ch:hover::before{opacity:1}
+.ch.sel{border-color:var(--gold-l);background:rgba(201,146,42,0.07)}
+.ch.sel::after{
+  content:'✦';position:absolute;top:11px;right:13px;
+  color:var(--gold);font-size:11px;
+}
+.chm{font-family:'Cinzel',serif;font-size:13px;color:var(--gold-p);letter-spacing:0.03em}
+.chs{font-size:12px;color:var(--muted);font-weight:300;margin-top:3px}
+
+/* COVENANT */
+.covt{
+  font-family:'Cinzel',serif;
+  font-size:clamp(0.9rem,2vw,1.1rem);
+  color:var(--text);line-height:1.95;
+  font-style:italic;max-width:640px;text-align:center;
+  border-left:2px solid var(--gold);
+  padding:22px 28px;background:rgba(201,146,42,0.025);
+  border-radius:0 6px 6px 0;
+  opacity:0;transform:translateY(20px);transition:all 0.8s 0.3s;
+}
+.scene.active .covt{opacity:1;transform:translateY(0)}
+.signbtn{
+  margin-top:36px;padding:18px 60px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border:none;border-radius:3px;color:var(--deep);
+  font-family:'Cinzel',serif;font-size:14px;
+  font-weight:700;letter-spacing:0.18em;cursor:pointer;
+  opacity:0;transition:opacity 0.6s 2s,transform 0.3s,box-shadow 0.3s;
+  box-shadow:0 8px 30px rgba(201,146,42,0.2);
+}
+.scene.active .signbtn{opacity:1}
+.signbtn:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(201,146,42,0.4)}
+
+/* EMAIL SCENE — after covenant, feels tiny and obvious */
+#s-email .qq{font-size:clamp(1.1rem,3vw,1.8rem)}
+.email-note{
+  font-size:12px;color:var(--muted);margin-top:8px;
+  font-style:italic;opacity:0;transition:opacity 0.6s 0.7s;
+}
+.scene.active .email-note{opacity:1}
+
+/* CARD */
+#sc{align-items:center;overflow-y:auto;padding:30px 24px}
+.cw{perspective:1000px;opacity:0;transition:opacity 0.6s 0.3s;flex-shrink:0}
+.scene.active .cw{opacity:1}
+.pcard{
+  width:min(470px,88vw);
+  background:linear-gradient(145deg,#1C1408,#0E0A04);
+  border:1px solid var(--gold);border-radius:12px;padding:34px;
+  position:relative;overflow:hidden;
+  transform-style:preserve-3d;transition:transform 0.12s ease;
+  box-shadow:0 0 0 1px rgba(201,146,42,0.08),
+    0 24px 70px rgba(0,0,0,0.9),
+    inset 0 1px 0 rgba(201,146,42,0.12);
+}
+.pcard::before{
+  content:'';position:absolute;top:-50px;right:-50px;
+  width:180px;height:180px;
+  background:radial-gradient(circle,rgba(201,146,42,0.07),transparent 70%);
+}
+.ct{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.ctl{font-family:'Cinzel Decorative',serif;font-size:11px;color:var(--gold);letter-spacing:0.2em}
+.ctr{font-size:11px;color:var(--muted);letter-spacing:0.12em}
+.cdiv{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:18px}
+.cname{font-family:'Cinzel',serif;font-size:clamp(1.3rem,5vw,1.9rem);color:var(--gold-p);margin-bottom:4px}
+.cloc{font-size:12px;color:var(--muted);letter-spacing:0.08em;margin-bottom:20px}
+.cphase{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(201,146,42,0.07);
+  border:1px solid rgba(201,146,42,0.18);
+  border-radius:4px;padding:7px 13px;margin-bottom:18px;
+}
+.cpl{font-size:10px;color:var(--muted);letter-spacing:0.12em;text-transform:uppercase}
+.cpn{font-family:'Cinzel',serif;font-size:13px;color:var(--gold)}
+.cil{font-size:10px;color:var(--muted);letter-spacing:0.18em;text-transform:uppercase;margin-bottom:5px}
+.ci{
+  font-size:13px;color:var(--text);font-style:italic;
+  font-weight:300;line-height:1.65;
+  border-left:2px solid var(--gold);padding-left:11px;margin-bottom:20px;
+}
+.cdates{
+  display:flex;justify-content:space-between;align-items:center;
+  padding-top:14px;border-top:1px solid var(--dim);
+}
+.cdi{text-align:center}
+.cdil{
+  font-size:9px;color:var(--muted);letter-spacing:0.12em;
+  text-transform:uppercase;display:block;margin-bottom:2px;
+}
+.cdv{font-family:'Cinzel',serif;font-size:12px;color:var(--gold-p)}
+.cnum{position:absolute;bottom:11px;right:14px;font-size:9px;color:var(--muted);letter-spacing:0.08em}
+
+/* CARD ACTIONS */
+.cacts{
+  display:flex;flex-direction:column;align-items:center;gap:14px;
+  margin-top:24px;opacity:0;transition:opacity 0.6s 1.2s;flex-shrink:0;
+}
+.scene.active .cacts{opacity:1}
+.wa{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:14px 32px;background:#25D366;border:none;
+  border-radius:6px;color:white;font-family:'Cinzel',serif;
+  font-size:13px;font-weight:700;letter-spacing:0.08em;
+  cursor:pointer;text-decoration:none;
+  transition:all 0.25s;box-shadow:0 6px 24px rgba(37,211,102,0.22);
+}
+.wa:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(37,211,102,0.38)}
+.wa svg{width:20px;height:20px;fill:white;flex-shrink:0}
+
+/* REFERRAL */
+.rw{
+  max-width:540px;width:100%;margin-top:0;
+  opacity:0;transition:opacity 0.8s 2s;
+  text-align:center;flex-shrink:0;
+}
+.scene.active .rw{opacity:1}
+.rdiv{display:flex;align-items:center;gap:14px;margin:28px 0}
+.rdivl{flex:1;height:1px;background:var(--dim)}
+.rdivsym{color:var(--gold);font-size:12px}
+.rhead{
+  font-family:'Cinzel',serif;
+  font-size:clamp(1.1rem,3vw,1.6rem);
+  color:var(--gold-p);margin-bottom:14px;line-height:1.3;
+}
+.rsub{
+  font-size:14px;color:var(--muted);
+  line-height:1.85;margin-bottom:22px;font-weight:300;
+}
+.rnlabel{
+  font-family:'Cinzel',serif;font-size:12px;color:var(--gold);
+  letter-spacing:0.15em;text-transform:uppercase;margin-bottom:12px;
+}
+.rninputs{
+  display:flex;flex-direction:column;gap:10px;
+  max-width:340px;margin:0 auto 18px;
+}
+.rni{
+  background:transparent;border:none;
+  border-bottom:1px solid var(--dim);
+  padding:10px 0;color:var(--text);
+  font-family:'Lato',sans-serif;font-size:14px;
+  font-weight:300;text-align:center;outline:none;
+  transition:border-color 0.3s;caret-color:var(--gold);
+}
+.rni:focus{border-bottom-color:var(--gold)}
+.rni::placeholder{color:var(--muted);font-style:italic;font-size:13px}
+.rgenbtn{
+  padding:13px 34px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border:none;border-radius:3px;color:var(--deep);
+  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:0.15em;cursor:pointer;
+  transition:all 0.25s;box-shadow:0 6px 24px rgba(201,146,42,0.2);
+}
+.rgenbtn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(201,146,42,0.35)}
+.rsharebox{
+  background:rgba(201,146,42,0.04);
+  border:1px solid rgba(201,146,42,0.15);
+  border-radius:8px;padding:20px;margin-top:16px;
+  animation:fup 0.5s ease both;
+}
+.rsharelabel{
+  font-size:9px;color:var(--gold);letter-spacing:0.28em;
+  text-transform:uppercase;margin-bottom:10px;
+}
+.rmsgbox{
+  font-size:13px;color:var(--text);line-height:1.8;
+  font-weight:300;text-align:left;
+  background:rgba(0,0,0,0.2);border-radius:6px;
+  padding:14px;margin-bottom:14px;
+  white-space:pre-line;font-family:'Lato',sans-serif;
+}
+.rsharebts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:12px}
+.rwabtn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:11px 22px;background:#25D366;
+  border:none;border-radius:6px;color:white;
+  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:0.06em;cursor:pointer;text-decoration:none;
+  transition:all 0.2s;
+}
+.rwabtn:hover{transform:translateY(-2px)}
+.rcopybtn{
+  padding:11px 22px;background:transparent;
+  border:1px solid rgba(201,146,42,0.3);border-radius:6px;
+  color:var(--gold);font-family:'Cinzel',serif;
+  font-size:12px;letter-spacing:0.06em;cursor:pointer;
+  transition:all 0.2s;
+}
+.rcopybtn:hover{background:rgba(201,146,42,0.08);border-color:var(--gold)}
+.rcopybtn.copied{border-color:var(--gold-l);color:var(--gold-l)}
+.rnote{font-size:11px;color:var(--muted);line-height:1.6}
+.rskip{
+  margin-top:20px;font-size:11px;color:var(--muted);
+  letter-spacing:0.1em;cursor:pointer;transition:color 0.2s;
+}
+.rskip:hover{color:var(--gold)}
+.sl{font-size:12px;color:var(--muted);text-decoration:none;letter-spacing:0.1em;transition:color 0.2s}
+.sl:hover{color:var(--gold)}
+
+@keyframes fup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:600px){
+  .cg.c2{grid-template-columns:1fr}
+  .cg.c3{grid-template-columns:1fr}
+  .pcard{padding:22px 18px}
+}
+</style>
 </head>
 <body>
-    <h1>Total Man Enrollment</h1>
-    <!-- Your HTML content goes here -->
+<canvas id="canvas"></canvas>
+<div id="prog"></div>
+<div id="burst"><div class="bsym">✦</div></div>
+<div id="nav"><button class="nbtn" onclick="goBack()">← Back</button></div>
+
+<!-- INTRO -->
+<div class="scene active" id="si">
+  <p class="i-tag">Lehem Network International · 2026</p>
+  <h1 class="i-title">The Total<br><span>Man</span></h1>
+  <p class="i-sub">"This is not a programme. This is a pursuit."</p>
+  <p class="i-date">22 March — 30 June 2026 &nbsp;·&nbsp; 100 Days</p>
+  <button class="i-btn" onclick="begin()">I AM READY &nbsp;→</button>
+</div>
+
+<!-- SCRIPTURE 1 -->
+<div class="scene" id="ss1">
+  <div class="sw">
+    <p class="st">"But we all, with unveiled face, beholding as in a mirror the glory of the Lord, are being transformed into the same image from glory to glory."</p>
+    <p class="sr">— 2 Corinthians 3:18</p>
+    <button class="sb" onclick="next()">This is my desire &nbsp;→</button>
+  </div>
+</div>
+
+<!-- Q1: FIRST NAME ONLY — the only early ask -->
+<div class="scene qs" id="s-name">
+  <p class="qctx">Let us begin</p>
+  <h2 class="qq">What do people call you?</h2>
+  <p class="qh">Just your first name. That is enough for now.</p>
+  <div class="qiw">
+    <input class="qi" id="fn" type="text" placeholder="Your first name" autocomplete="off" autocapitalize="words">
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-name" onclick="next()">
+    That is who I am
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-name">Press Enter to continue</span>
+</div>
+
+<!-- Q2: SPIRITUAL STATE — choice, no data feel -->
+<div class="scene qs" id="s-spirit">
+  <p class="qctx">No wrong answers here</p>
+  <h2 class="qq" id="q-spirit-head">Where are you right now, spiritually?</h2>
+  <p class="qh">Be honest. Just between you and God — and us.</p>
+  <div class="cg c2" id="cg-spirit">
+    <div class="ch" onclick="pick(this,'ss','Growing — but wanting more')">
+      <div class="chm">Growing — but wanting more</div>
+      <div class="chs">The hunger is real. I need fuel.</div>
+    </div>
+    <div class="ch" onclick="pick(this,'ss','Stagnant — need a breakthrough')">
+      <div class="chm">Stagnant — need a breakthrough</div>
+      <div class="chs">Something has to change.</div>
+    </div>
+    <div class="ch" onclick="pick(this,'ss','Strong — want to go deeper')">
+      <div class="chm">Strong — want to go deeper</div>
+      <div class="chs">There is always another level.</div>
+    </div>
+    <div class="ch" onclick="pick(this,'ss','Returning after a dry season')">
+      <div class="chm">Returning after a dry season</div>
+      <div class="chs">This feels like my moment.</div>
+    </div>
+  </div>
+</div>
+
+<!-- Q3: PHASE — choice -->
+<div class="scene qs" id="s-phase">
+  <p class="qctx">Your entry point</p>
+  <h2 class="qq">Which part of you needs the most work?</h2>
+  <p class="qh">Be ruthlessly honest. This becomes your focus phase.</p>
+  <div class="cg c2" id="cg-phase">
+    <div class="ch" onclick="pick(this,'pp','Spirit')">
+      <div class="chm">My Spirit</div>
+      <div class="chs">My inner man is passive and underdeveloped</div>
+    </div>
+    <div class="ch" onclick="pick(this,'pp','Mind')">
+      <div class="chm">My Mind</div>
+      <div class="chs">My thinking doesn't match what I believe</div>
+    </div>
+    <div class="ch" onclick="pick(this,'pp','Body')">
+      <div class="chm">My Body</div>
+      <div class="chs">My flesh is winning too many battles</div>
+    </div>
+    <div class="ch" onclick="pick(this,'pp','Authority')">
+      <div class="chm">My Authority</div>
+      <div class="chs">I know the theory but not the experience</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTURE 2 — breath in the middle -->
+<div class="scene" id="ss2">
+  <div class="sw">
+    <p class="st">"That He would grant you, according to the riches of His glory, to be strengthened with power through His Spirit in the inner man."</p>
+    <p class="sr">— Ephesians 3:16</p>
+    <button class="sb" onclick="next()">I receive this &nbsp;→</button>
+  </div>
+</div>
+
+<!-- Q4: LOCATION — woven in naturally mid-journey -->
+<div class="scene qs" id="s-loc">
+  <p class="qctx">The network spans the earth</p>
+  <h2 class="qq" id="q-loc-head">Where in the world are you?</h2>
+  <p class="qh">Every city represented in this journey is a node in something global.</p>
+  <div class="qiw" style="display:flex;flex-direction:column;gap:18px;max-width:440px;margin:0 auto">
+    <div style="position:relative">
+      <input class="qi" id="cy" type="text" placeholder="City" autocomplete="off">
+      <div class="qul"></div>
+    </div>
+    <div style="position:relative">
+      <input class="qi" id="co" type="text" placeholder="Country" autocomplete="off">
+      <div class="qul"></div>
+    </div>
+  </div>
+  <button class="qgo" id="bg-loc" onclick="next()">
+    This is where I stand
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-loc">Press Enter to continue</span>
+</div>
+
+<!-- Q5: INTENTION — the deep ask -->
+<div class="scene qs" id="s-intent">
+  <p class="qctx">The most important question</p>
+  <h2 class="qq">Complete this sentence:</h2>
+  <p class="qh" style="color:var(--gold);font-size:1rem">"God, I want these 100 days to..."</p>
+  <div class="qiw" style="max-width:540px">
+    <textarea id="it" class="qi" rows="3"
+      placeholder="Write it. Don't overthink. Let it come."
+      style="resize:none;text-align:left;font-size:1rem;line-height:1.7;padding:14px 0"
+    ></textarea>
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-intent" onclick="next()">
+    This is my prayer
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-intent">Press Enter to continue</span>
+</div>
+
+<!-- Q6: SOURCE — light and easy -->
+<div class="scene qs" id="s-source">
+  <p class="qctx">Almost there</p>
+  <h2 class="qq">How did you find out about this?</h2>
+  <p class="qh">We want to know what God used.</p>
+  <div class="cg c2" id="cg-src">
+    <div class="ch" onclick="pick(this,'src','WhatsApp')"><div class="chm">WhatsApp</div></div>
+    <div class="ch" onclick="pick(this,'src','Social Media')"><div class="chm">Social Media</div></div>
+    <div class="ch" onclick="pick(this,'src','A friend or family')"><div class="chm">A friend or family</div></div>
+    <div class="ch" onclick="pick(this,'src','My leader or church')"><div class="chm">My leader or church</div></div>
+    <div class="ch" onclick="pick(this,'src','LNI Website')"><div class="chm">LNI Website</div></div>
+    <div class="ch" onclick="pick(this,'src','Other')"><div class="chm">Other</div></div>
+  </div>
+</div>
+
+<!-- COVENANT -->
+<div class="scene" id="s-cov" style="text-align:center">
+  <p class="qctx" style="opacity:1;margin-bottom:24px">One final thing</p>
+  <p class="covt">
+    "I, <span id="covn" style="color:var(--gold-p);font-style:normal;font-weight:600"></span>,
+    am enrolling in The Total Man 100-Day Journey not as a programme to complete,
+    but as a pursuit of God. I commit to showing up — daily.
+    To pray, to read, to confess, to drill, to fast when required,
+    and to journal honestly.
+    I understand that the fruit of these 100 days is not a certificate.
+    It is a new man. I enter this with God, with myself,
+    and with the community that walks beside me."
+  </p>
+  <button class="signbtn" onclick="afterCovenant()">I SIGN THIS &nbsp;✦</button>
+</div>
+
+<!-- EMAIL — after covenant, feels like almost nothing -->
+<div class="scene qs" id="s-email">
+  <p class="qctx">One last thing</p>
+  <h2 class="qq" id="q-email-head">Where should we send important updates?</h2>
+  <p class="qh">Your covenant is signed. Just need a way to reach you.</p>
+  <p class="email-note">No noise. Only what matters.</p>
+  <div class="qiw" style="margin-top:8px">
+    <input class="qi" id="em" type="email" placeholder="your@email.com" autocomplete="off">
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-email" onclick="submitAndShow()">
+    Complete My Enrolment
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-email">Press Enter to complete</span>
+</div>
+
+<!-- CARD + REFERRAL -->
+<div class="scene" id="sc" style="overflow-y:auto;align-items:center;gap:0;padding:28px 20px 40px">
+  <div class="cw">
+    <div class="pcard" id="pc">
+      <div class="ct">
+        <span class="ctl">LNI GLOBAL</span>
+        <span class="ctr">100-DAY · 2026</span>
+      </div>
+      <div class="cdiv"></div>
+      <div class="cname" id="cn">—</div>
+      <div class="cloc" id="cl">—</div>
+      <div class="cphase">
+        <span class="cpl">Entry Phase</span>
+        <span class="cpn" id="cph">—</span>
+      </div>
+      <div class="cil">My Intention</div>
+      <div class="ci" id="cint">—</div>
+      <div class="cdates">
+        <div class="cdi"><span class="cdil">Start</span><span class="cdv">22 Mar</span></div>
+        <span style="color:var(--gold)">✦</span>
+        <div class="cdi"><span class="cdil">End</span><span class="cdv">30 Jun</span></div>
+        <span style="color:var(--gold)">✦</span>
+        <div class="cdi"><span class="cdil">Days</span><span class="cdv">100</span></div>
+      </div>
+      <div class="cnum" id="cno">#TM-2026-0000</div>
+    </div>
+  </div>
+
+  <div class="cacts">
+    <a href="YOUR_WHATSAPP_GROUP_LINK_HERE" target="_blank" class="wa">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L.057 23.998l6.306-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.36-.214-3.732.978 1-3.64-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
+      Join the WhatsApp Group
+    </a>
+    <a href="https://lehemnetwork.org" class="sl">Return to LNI Global →</a>
+  </div>
+
+  <!-- REFERRAL -->
+  <div class="rw" id="rw">
+    <div class="rdiv">
+      <span class="rdivl"></span><span class="rdivsym">✦</span><span class="rdivl"></span>
+    </div>
+    <p style="font-size:10px;color:var(--gold);letter-spacing:0.3em;text-transform:uppercase;margin-bottom:10px">
+      Your enrolment is sealed.
+    </p>
+    <h3 class="rhead">A Total Man does not walk alone.</h3>
+    <p class="rsub">
+      David had his Mighty Men. Paul had Timothy and Silas.
+      Jesus sent them out <em>two by two.</em>
+      <br><br>
+      Think of <strong style="color:var(--gold-p)">three people</strong>
+      who need these 100 days as much as you do.
+      Not everyone will say yes. But the right ones will —
+      and the journey becomes something else entirely when you do it together.
+    </p>
+    <div id="rnames">
+      <p class="rnlabel">Who are your three?</p>
+      <div class="rninputs">
+        <input class="rni" id="rn1" type="text" placeholder="First person's name" autocomplete="off">
+        <input class="rni" id="rn2" type="text" placeholder="Second person's name" autocomplete="off">
+        <input class="rni" id="rn3" type="text" placeholder="Third person's name" autocomplete="off">
+      </div>
+      <button class="rgenbtn" onclick="genShare()">Generate My Invitation →</button>
+    </div>
+    <div class="rsharebox" id="rsbox" style="display:none">
+      <p class="rsharelabel">YOUR PERSONAL INVITATION</p>
+      <div class="rmsgbox" id="rmsg"></div>
+      <div class="rsharebts">
+        <a class="rwabtn" id="rwabtn" href="#" target="_blank">
+          <svg viewBox="0 0 24 24" fill="white" width="17" height="17"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L.057 23.998l6.306-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.36-.214-3.732.978 1-3.64-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
+          Send on WhatsApp
+        </a>
+        <button class="rcopybtn" id="rcpbtn" onclick="copyMsg()">Copy Message</button>
+      </div>
+      <p class="rnote">Anyone who receives this link joins the same experience you just completed.</p>
+    </div>
+    <p class="rskip" onclick="skipShare()">I will do this later →</p>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import{getFirestore,addDoc,collection,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+const cfg={
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID",
+  storageBucket:"YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId:"YOUR_SENDER_ID",
+  appId:"YOUR_APP_ID"
+};
+const app=initializeApp(cfg);
+const db=getFirestore(app);
+window._db=db;window._add=addDoc;window._col=collection;window._ts=serverTimestamp;
+</script>
+
+<script>
+// PARTICLES
+const cv=document.getElementById('canvas'),cx=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+rsz();addEventListener('resize',rsz);
+function mkp(){return{x:Math.random()*W,y:H+5,s:Math.random()*1.4+0.2,sp:Math.random()*0.35+0.08,o:Math.random()*0.35+0.04,d:(Math.random()-0.5)*0.25}}
+for(let i=0;i<55;i++){const p=mkp();p.y=Math.random()*H;pts.push(p)}
+(function anim(){
+  cx.clearRect(0,0,W,H);
+  pts.forEach((p,i)=>{
+    p.y-=p.sp;p.x+=p.d;p.o-=0.00022;
+    if(p.y<-5||p.o<=0)pts[i]=mkp();
+    cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2);
+    cx.fillStyle=`rgba(201,146,42,${p.o})`;cx.fill();
+  });requestAnimationFrame(anim);
+})();
+
+// SCENE MANAGEMENT
+// Scene order — note: data is dissolved throughout
+const SCENES=[
+  'si',       // 0 intro
+  'ss1',      // 1 scripture
+  's-name',   // 2 first name only
+  's-spirit', // 3 spiritual state (choice)
+  's-phase',  // 4 phase (choice)
+  'ss2',      // 5 scripture
+  's-loc',    // 6 city + country (mid-journey)
+  's-intent', // 7 intention
+  's-source', // 8 how heard (choice)
+  's-cov',    // 9 covenant
+  's-email',  // 10 email — after covenant, feels trivial
+  'sc',       // 11 card + referral
+];
+
+// Which scenes get progress dots
+const PDOTS=['s-name','s-spirit','s-phase','s-loc','s-intent','s-source','s-cov','s-email'];
+
+let idx=0;
+const A={fn:'',city:'',country:'',email:'',ss:'',pp:'',intent:'',src:''};
+
+// Build progress dots
+const prog=document.getElementById('prog');
+PDOTS.forEach((_,i)=>{
+  const d=document.createElement('div');d.className='pd';d.id='pd'+i;prog.appendChild(d);
+});
+
+function upChrome(){
+  const pi=PDOTS.indexOf(SCENES[idx]);
+  prog.classList.toggle('show',pi>=0);
+  document.getElementById('nav').classList.toggle('show',idx>1&&SCENES[idx]!=='sc');
+  PDOTS.forEach((_,i)=>{
+    const d=document.getElementById('pd'+i);
+    d.classList.remove('now','done');
+    if(i<pi)d.classList.add('done');
+    else if(i===pi)d.classList.add('now');
+  });
+}
+
+function goTo(i){
+  document.getElementById(SCENES[idx]).classList.remove('active');
+  idx=i;
+  document.getElementById(SCENES[idx]).classList.add('active');
+  upChrome();
+  setTimeout(()=>{
+    const inp=document.querySelector(`#${SCENES[idx]} input,#${SCENES[idx]} textarea`);
+    if(inp)inp.focus();
+  },550);
+}
+
+window.begin=()=>{burst();setTimeout(()=>goTo(1),420)};
+window.next=()=>{if(!validate())return;collect();burst();setTimeout(()=>goTo(idx+1),420)};
+window.goBack=()=>{if(idx>1)goTo(idx-1)};
+
+function burst(){
+  const b=document.getElementById('burst'),s=b.querySelector('.bsym');
+  b.style.opacity=1;s.classList.remove('go');void s.offsetWidth;s.classList.add('go');
+  setTimeout(()=>{b.style.opacity=0;s.classList.remove('go')},660);
+}
+
+function flash(m){
+  let el=document.getElementById('fl');
+  if(!el){
+    el=document.createElement('div');el.id='fl';
+    el.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(220,60,60,0.1);border:1px solid rgba(220,60,60,0.28);border-radius:6px;padding:10px 22px;color:#F08080;font-size:13px;z-index:300;transition:opacity 0.3s';
+    document.body.appendChild(el);
+  }
+  el.textContent=m;el.style.opacity=1;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity=0,3200);
+}
+
+function validate(){
+  const s=SCENES[idx];
+  if(s==='s-name'&&!document.getElementById('fn').value.trim())return flash('Please tell us your name.'),false;
+  if(s==='s-loc'){
+    if(!document.getElementById('cy').value.trim()||!document.getElementById('co').value.trim())
+      return flash('Please enter both your city and country.'),false;
+  }
+  if(s==='s-intent'&&document.getElementById('it').value.trim().length<4)
+    return flash('Please write your intention — even one sentence.'),false;
+  if(s==='s-email'){
+    const e=document.getElementById('em').value.trim();
+    if(!e||!e.includes('@'))return flash('Please enter a valid email address.'),false;
+  }
+  return true;
+}
+
+function collect(){
+  const s=SCENES[idx];
+  if(s==='s-name'){
+    A.fn=document.getElementById('fn').value.trim();
+    // Personalise upcoming questions with their name
+    document.getElementById('q-spirit-head').textContent=`Where are you right now, ${A.fn}?`;
+    document.getElementById('q-loc-head').textContent=`Where in the world are you, ${A.fn}?`;
+    document.getElementById('q-email-head').textContent=`Last thing, ${A.fn} — where should we reach you?`;
+  }
+  if(s==='s-loc'){
+    A.city=document.getElementById('cy').value.trim();
+    A.country=document.getElementById('co').value.trim();
+  }
+  if(s==='s-intent')A.intent=document.getElementById('it').value.trim();
+  if(s==='s-email')A.email=document.getElementById('em').value.trim();
+}
+
+// CHOICE SELECTION — auto advances
+window.pick=function(el,field,val){
+  el.closest('.cg').querySelectorAll('.ch').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');A[field]=val;
+  setTimeout(()=>window.next(),580);
+};
+
+// COVENANT — inserts name before signing
+window.afterCovenant=function(){
+  document.getElementById('covn').textContent=A.fn;
+  burst();setTimeout(()=>goTo(SCENES.indexOf('s-email')),420);
+};
+
+// SHOW CONTINUE BTN AS USER TYPES
+function wire(inpId,btnId,tipId,minLen){
+  minLen=minLen||1;
+  const inp=document.getElementById(inpId);
+  if(!inp)return;
+  inp.addEventListener('input',()=>{
+    const ok=inp.value.trim().length>=minLen;
+    document.getElementById(btnId)?.classList.toggle('on',ok);
+    document.getElementById(tipId)?.classList.toggle('on',ok);
+  });
+}
+wire('fn','bg-name','et-name');
+wire('em','bg-email','et-email');
+wire('it','bg-intent','et-intent',4);
+['cy','co'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',()=>{
+    const ok=document.getElementById('cy').value.trim()&&document.getElementById('co').value.trim();
+    document.getElementById('bg-loc')?.classList.toggle('on',!!ok);
+    document.getElementById('et-loc')?.classList.toggle('on',!!ok);
+  });
+});
+
+// ENTER KEY
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){
+    const textScenes=['s-name','s-loc','s-email'];
+    if(textScenes.includes(SCENES[idx])&&document.activeElement.tagName!=='TEXTAREA'){
+      e.preventDefault();window.next();
+    }
+    if(SCENES[idx]==='s-intent'&&document.activeElement.tagName!=='TEXTAREA'){
+      e.preventDefault();window.next();
+    }
+  }
+});
+
+// SUBMIT + BUILD CARD
+window.submitAndShow=async function(){
+  if(!validate())return;
+  collect();
+
+  const num=`#TM-2026-${String(Math.floor(Math.random()*9000)+1000)}`;
+  document.getElementById('cn').textContent=A.fn;
+  document.getElementById('cl').textContent=`${A.city}, ${A.country}`;
+  document.getElementById('cph').textContent=A.pp||'—';
+  const intText=A.intent.length>110?A.intent.slice(0,107)+'…':A.intent;
+  document.getElementById('cint').textContent=intText||'—';
+  document.getElementById('cno').textContent=num;
+
+  try{
+    await window._add(window._col(window._db,'total_man_enrollments'),{
+      firstName:A.fn,city:A.city,country:A.country,
+      email:A.email,spiritualState:A.ss,phasePull:A.pp,
+      intention:A.intent,source:A.src,
+      enrollNumber:num,covenantSigned:true,
+      referredBy:new URLSearchParams(location.search).get('ref')||'',
+      journeyStart:'22 March 2026',journeyEnd:'30 June 2026',
+      enrolledAt:window._ts(),
+    });
+  }catch(e){console.warn('Save:',e);}
+
+  burst();setTimeout(()=>goTo(SCENES.indexOf('sc')),420);
+};
+
+// 3D CARD
+const pc=document.getElementById('pc');
+pc.addEventListener('mousemove',e=>{
+  const r=pc.getBoundingClientRect();
+  const x=(e.clientX-r.left)/r.width-0.5,y=(e.clientY-r.top)/r.height-0.5;
+  pc.style.transform=`rotateY(${x*14}deg) rotateX(${-y*9}deg)`;
+});
+pc.addEventListener('mouseleave',()=>pc.style.transform='rotateY(0) rotateX(0)');
+
+// REFERRAL
+window.genShare=function(){
+  const n1=document.getElementById('rn1').value.trim();
+  const n2=document.getElementById('rn2').value.trim();
+  const n3=document.getElementById('rn3').value.trim();
+  const named=[n1,n2,n3].filter(Boolean);
+  const num=document.getElementById('cno').textContent;
+  const pageUrl=`${location.origin}${location.pathname}?ref=${encodeURIComponent(A.fn)}`;
+  const greeting=n1||'Friend';
+
+  const msg=`${greeting},\n\nI just enrolled in something I believe could change everything — The Total Man, a 100-day discipleship journey with Lehem Network International, starting 22nd March 2026.\n\n100 days. Spirit. Mind. Body. Authority. Legacy.\n\nI thought of you specifically when I finished. Not everyone gets invited. I am inviting you because I don't want to do this alone — and I believe you are ready.\n\nEnrol here:\n${pageUrl}\n\n— ${A.fn} (${num})\n\n"As iron sharpens iron, so one man sharpens another." — Prov 27:17`;
+
+  document.getElementById('rmsg').textContent=msg;
+  document.getElementById('rnames').style.display='none';
+  document.getElementById('rsbox').style.display='block';
+  document.getElementById('rwabtn').href=`https://wa.me/?text=${encodeURIComponent(msg)}`;
+
+  try{
+    if(window._add&&window._col&&window._db){
+      window._add(window._col(window._db,'referrals'),{
+        referrerName:A.fn,referrerNumber:num,invitedNames:named,
+        createdAt:window._ts?window._ts():new Date().toISOString(),
+      });
+    }
+  }catch(e){}
+};
+
+window.copyMsg=function(){
+  navigator.clipboard.writeText(document.getElementById('rmsg').textContent).then(()=>{
+    const b=document.getElementById('rcpbtn');
+    b.textContent='✓ Copied';b.classList.add('copied');
+    setTimeout(()=>{b.textContent='Copy Message';b.classList.remove('copied')},2500);
+  });
+};
+
+window.skipShare=function(){
+  const rw=document.getElementById('rw');
+  rw.style.opacity='0';
+  setTimeout(()=>rw.style.display='none',400);
+};
+</script>
 </body>
 </html>
