@@ -1050,7 +1050,18 @@ window.copyMsg=function(){
     setTimeout(()=>{b.textContent='Copy Message';b.classList.remove('copied')},2500);
   });
 };
-
+  
+window.openSharePanel=function(){
+  // Scroll down to the referral section and reveal it
+  const rw=document.getElementById('rw');
+  if(rw){
+    rw.style.display='block';
+    rw.style.opacity='1';
+    setTimeout(()=>rw.scrollIntoView({behavior:'smooth',block:'start'}),100);
+    if(typeof genShare==='function')genShare();
+  }
+};
+  
 window.skipShare=function(){
   const rw=document.getElementById('rw');
   rw.style.opacity='0';
