@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join a Network — LNI Global</title>
+<meta property="og:title" content="Join an LNI Network — Lehem Network International">
+<meta property="og:description" content="Find your local chapter. Walk with men who are pursuing the same thing you are.">
+<meta property="og:image" content="https://lehemnetwork.org/lni-og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Cinzel:wght@400;600&family=Lato:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#0A0806;--bark:#1A1208;--dim:#2E2214;--rim:#4A3820;
+  --gold:#C9922A;--gold-l:#E8B84B;--gold-p:#F5DFA0;
+  --text:#E8DCC8;--muted:#7A6848;--soft:#B8A888;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:'Lato',sans-serif;background:var(--ink);color:var(--text)}
+
+#cv{position:fixed;inset:0;pointer-events:none;z-index:0}
+
+.scene{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:60px 24px 80px;z-index:10;
+  opacity:0;pointer-events:none;transition:opacity 0.85s ease;
+}
+.scene.active{opacity:1;pointer-events:all}
+
+/* PROGRESS */
+#prog{
+  position:fixed;top:24px;left:50%;transform:translateX(-50%);
+  z-index:100;display:flex;align-items:center;gap:8px;
+  opacity:0;transition:opacity 0.5s;
+}
+#prog.show{opacity:1}
+.pd{width:6px;height:6px;border-radius:50%;background:var(--dim);transition:all 0.4s}
+.pd.done{background:var(--gold-l)}
+.pd.now{background:var(--gold);transform:scale(1.6);box-shadow:0 0 8px rgba(201,146,42,0.5)}
+
+#nav{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  z-index:100;opacity:0;transition:opacity 0.5s;
+}
+#nav.show{opacity:1}
+.nbtn{
+  background:transparent;border:1px solid var(--dim);border-radius:30px;
+  padding:8px 22px;color:var(--muted);font-family:'Lato',sans-serif;
+  font-size:12px;letter-spacing:0.08em;cursor:pointer;transition:all 0.2s;
+}
+.nbtn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* BURST */
+#burst{position:fixed;inset:0;pointer-events:none;z-index:200;
+  display:flex;align-items:center;justify-content:center;opacity:0}
+.bsym{font-family:'Cinzel',serif;font-size:8rem;color:var(--gold);
+  text-shadow:0 0 60px rgba(201,146,42,0.9);opacity:0;transform:scale(0.3)}
+@keyframes bpop{0%{opacity:0;transform:scale(0.3)}40%{opacity:0.6;transform:scale(1.1)}100%{opacity:0;transform:scale(2)}}
+.bsym.go{animation:bpop 0.6s ease forwards}
+
+/* INTRO */
+#si{text-align:center}
+.i-lni{font-size:10px;color:var(--gold);letter-spacing:0.4em;text-transform:uppercase;
+  margin-bottom:28px;opacity:0;animation:fup 1s 0.4s ease forwards}
+.i-title{font-family:'Cormorant Garamond',serif;font-size:clamp(2.8rem,9vw,6rem);
+  color:var(--gold-p);line-height:1;font-weight:600;
+  opacity:0;animation:fup 1s 0.9s ease forwards;
+  text-shadow:0 0 80px rgba(201,146,42,0.2)}
+.i-title em{color:var(--gold);font-style:italic}
+.i-verse{font-family:'Cormorant Garamond',serif;font-size:clamp(1rem,2.5vw,1.3rem);
+  color:var(--soft);font-style:italic;margin-top:18px;line-height:1.6;
+  opacity:0;animation:fup 1s 1.6s ease forwards}
+.i-ref{font-size:11px;color:var(--gold);letter-spacing:0.15em;margin-top:6px;
+  opacity:0;animation:fup 1s 2s ease forwards}
+.i-btn{margin-top:44px;padding:16px 52px;background:transparent;
+  border:1px solid rgba(201,146,42,0.4);border-radius:2px;
+  color:var(--gold-p);font-family:'Cinzel',serif;font-size:13px;
+  letter-spacing:0.22em;cursor:pointer;transition:all 0.4s;
+  position:relative;overflow:hidden;
+  opacity:0;animation:fup 1s 2.6s ease forwards}
+.i-btn::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.4s;z-index:-1}
+.i-btn:hover{color:var(--ink);border-color:var(--gold)}
+.i-btn:hover::before{transform:scaleX(1)}
+
+/* ETHOS SCENE */
+.ethos-wrap{max-width:640px;width:100%;text-align:center}
+.ethos-tag{font-size:10px;color:var(--gold);letter-spacing:0.35em;
+  text-transform:uppercase;margin-bottom:22px;
+  opacity:0;transition:opacity 0.6s 0.2s}
+.scene.active .ethos-tag{opacity:1}
+.ethos-heading{font-family:'Cormorant Garamond',serif;font-size:clamp(1.4rem,4vw,2.2rem);
+  color:var(--gold-p);line-height:1.3;margin-bottom:24px;font-weight:600;
+  opacity:0;transform:translateY(20px);transition:all 0.7s 0.35s}
+.scene.active .ethos-heading{opacity:1;transform:translateY(0)}
+.ethos-body{font-size:14px;color:var(--soft);line-height:1.95;font-weight:300;
+  text-align:left;
+  opacity:0;transform:translateY(16px);transition:all 0.7s 0.55s}
+.scene.active .ethos-body{opacity:1;transform:translateY(0)}
+.ethos-body p{margin-bottom:14px}
+.ethos-body strong{color:var(--gold-p);font-weight:400}
+
+/* AFFIRMATION */
+.affirm-wrap{
+  background:rgba(201,146,42,0.04);border:1px solid rgba(201,146,42,0.15);
+  border-radius:8px;padding:20px 22px;margin-top:20px;
+  display:flex;align-items:flex-start;gap:14px;cursor:pointer;
+  transition:all 0.3s;
+  opacity:0;transition:opacity 0.6s 1s,all 0.3s}
+.scene.active .affirm-wrap{opacity:1}
+.affirm-wrap:hover{border-color:var(--gold);background:rgba(201,146,42,0.07)}
+.affirm-wrap.checked{border-color:var(--gold-l);background:rgba(201,146,42,0.08)}
+.affirm-box{
+  width:18px;height:18px;flex-shrink:0;
+  border:1px solid var(--rim);border-radius:3px;
+  background:transparent;margin-top:2px;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.affirm-wrap.checked .affirm-box{background:var(--gold);border-color:var(--gold)}
+.affirm-box svg{width:10px;height:10px;display:none}
+.affirm-wrap.checked .affirm-box svg{display:block}
+.affirm-text{font-size:13px;color:var(--soft);line-height:1.7;font-style:italic}
+
+.ethos-continue{
+  margin-top:22px;padding:13px 34px;
+  background:linear-gradient(135deg,var(--gold),var(--gold-l));
+  border:none;border-radius:3px;color:var(--ink);
+  font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:0.15em;cursor:pointer;
+  opacity:0;transition:opacity 0.4s,transform 0.3s,box-shadow 0.3s;
+  box-shadow:0 6px 24px rgba(201,146,42,0.2);
+}
+.ethos-continue.show{opacity:1}
+.ethos-continue:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(201,146,42,0.35)}
+
+/* QUESTION SCENES */
+.qs{text-align:center;max-width:680px;width:100%}
+.qctx{font-size:10px;color:var(--gold);letter-spacing:0.3em;
+  text-transform:uppercase;margin-bottom:14px;
+  opacity:0;transition:opacity 0.6s 0.1s}
+.scene.active .qctx{opacity:1}
+.qq{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.4rem,4.5vw,2.4rem);
+  color:var(--gold-p);line-height:1.3;margin-bottom:10px;font-weight:600;
+  opacity:0;transform:translateY(22px);transition:all 0.7s 0.25s}
+.scene.active .qq{opacity:1;transform:translateY(0)}
+.qh{font-size:13px;color:var(--muted);font-style:italic;
+  margin-bottom:34px;opacity:0;transition:opacity 0.6s 0.45s}
+.scene.active .qh{opacity:1}
+
+.qiw{position:relative;max-width:440px;margin:0 auto;
+  opacity:0;transform:translateY(12px);transition:all 0.6s 0.5s}
+.scene.active .qiw{opacity:1;transform:translateY(0)}
+.qi{width:100%;background:transparent;border:none;
+  border-bottom:1px solid var(--dim);padding:13px 0;
+  color:var(--text);font-family:'Lato',sans-serif;
+  font-size:clamp(1rem,2.8vw,1.4rem);font-weight:300;
+  text-align:center;outline:none;transition:border-color 0.3s;caret-color:var(--gold)}
+.qi:focus{border-bottom-color:var(--gold)}
+.qi::placeholder{color:var(--muted);font-style:italic}
+.qul{position:absolute;bottom:0;left:50%;width:0;height:1px;
+  background:var(--gold);transform:translateX(-50%);transition:width 0.4s}
+.qi:focus~.qul{width:100%}
+
+.qgo{display:inline-flex;align-items:center;gap:10px;
+  background:transparent;border:none;color:var(--gold);
+  font-family:'Cinzel',serif;font-size:12px;letter-spacing:0.15em;
+  cursor:pointer;margin-top:28px;padding:8px 14px;
+  opacity:0;transition:opacity 0.4s,color 0.2s}
+.qgo.on{opacity:1}
+.qgo:hover{color:var(--gold-l)}
+.qgo svg{width:16px;height:16px;transition:transform 0.2s}
+.qgo:hover svg{transform:translateX(4px)}
+.etip{display:block;font-size:11px;color:var(--muted);
+  letter-spacing:0.06em;margin-top:7px;opacity:0;transition:opacity 0.4s}
+.etip.on{opacity:1}
+
+/* CHOICES */
+.cg{display:grid;gap:9px;max-width:640px;margin:0 auto;
+  opacity:0;transform:translateY(12px);transition:all 0.6s 0.5s}
+.scene.active .cg{opacity:1;transform:translateY(0)}
+.cg.c2{grid-template-columns:1fr 1fr}
+.ch{background:rgba(255,255,255,0.02);border:1px solid var(--dim);
+  border-radius:6px;padding:15px 18px;cursor:pointer;
+  transition:all 0.25s;text-align:left;position:relative;overflow:hidden}
+.ch::before{content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(201,146,42,0.06),transparent);
+  opacity:0;transition:opacity 0.3s}
+.ch:hover{border-color:var(--gold);transform:translateY(-2px)}
+.ch:hover::before{opacity:1}
+.ch.sel{border-color:var(--gold-l);background:rgba(201,146,42,0.07)}
+.ch.sel::after{content:'✦';position:absolute;top:11px;right:12px;color:var(--gold);font-size:10px}
+.chm{font-family:'Cinzel',serif;font-size:12px;color:var(--gold-p);letter-spacing:0.03em}
+.chs{font-size:12px;color:var(--muted);font-weight:300;margin-top:3px}
+
+/* SCRIPTURE */
+.sw{text-align:center;max-width:560px}
+.st{font-family:'Cormorant Garamond',serif;
+  font-size:clamp(1.1rem,3vw,1.6rem);color:var(--text);
+  line-height:1.75;font-style:italic;
+  opacity:0;transform:translateY(18px);transition:all 0.9s 0.3s}
+.scene.active .st{opacity:1;transform:translateY(0)}
+.sr{margin-top:16px;font-size:11px;color:var(--gold);letter-spacing:0.18em;
+  opacity:0;transition:opacity 0.6s 1.3s}
+.scene.active .sr{opacity:1}
+.sb{margin-top:40px;padding:12px 32px;background:transparent;
+  border:1px solid rgba(201,146,42,0.2);border-radius:2px;
+  color:var(--gold);font-family:'Cinzel',serif;font-size:11px;
+  letter-spacing:0.18em;cursor:pointer;
+  opacity:0;transition:opacity 0.6s 2s,all 0.3s}
+.scene.active .sb{opacity:1}
+.sb:hover{background:rgba(201,146,42,0.07);border-color:var(--gold)}
+
+/* CONFIRMATION */
+#sc{text-align:center;overflow-y:auto}
+.conf-card{
+  max-width:460px;width:min(460px,88vw);
+  background:linear-gradient(145deg,#1A1208,#0E0A04);
+  border:1px solid var(--gold);border-radius:12px;padding:32px;
+  position:relative;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(201,146,42,0.08),
+    0 20px 60px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(201,146,42,0.12);
+  opacity:0;transform:translateY(20px);transition:all 0.8s 0.3s;
+}
+.scene.active .conf-card{opacity:1;transform:translateY(0)}
+.conf-card::before{content:'';position:absolute;top:-40px;right:-40px;
+  width:150px;height:150px;
+  background:radial-gradient(circle,rgba(201,146,42,0.08),transparent 70%)}
+.conf-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+.conf-lni{font-family:'Cinzel',serif;font-size:10px;color:var(--gold);letter-spacing:0.2em}
+.conf-type{font-size:10px;color:var(--muted);letter-spacing:0.12em}
+.conf-div{height:1px;background:linear-gradient(90deg,var(--gold),transparent);margin-bottom:16px}
+.conf-title{font-family:'Cormorant Garamond',serif;font-size:clamp(1.2rem,4vw,1.7rem);
+  color:var(--gold-p);margin-bottom:4px;font-weight:600}
+.conf-name{font-size:12px;color:var(--muted);margin-bottom:18px;letter-spacing:0.06em}
+.conf-msg{font-size:13px;color:var(--soft);line-height:1.75;
+  font-style:italic;border-left:2px solid var(--gold);
+  padding-left:12px;margin-bottom:20px;text-align:left}
+.conf-steps{text-align:left;margin-bottom:0}
+.conf-step{display:flex;align-items:flex-start;gap:10px;
+  padding:10px 0;border-bottom:1px solid var(--dim)}
+.conf-step:last-child{border-bottom:none}
+.conf-step-num{font-family:'Cinzel',serif;font-size:11px;color:var(--gold);
+  min-width:18px;margin-top:1px}
+.conf-step-text{font-size:12px;color:var(--soft);line-height:1.6}
+
+.conf-actions{
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  margin-top:22px;
+  opacity:0;transition:opacity 0.6s 1.2s;
+}
+.scene.active .conf-actions{opacity:1}
+.wa-btn{display:inline-flex;align-items:center;gap:10px;
+  padding:13px 30px;background:#25D366;border:none;border-radius:6px;
+  color:white;font-family:'Cinzel',serif;font-size:12px;font-weight:700;
+  letter-spacing:0.06em;cursor:pointer;text-decoration:none;
+  transition:all 0.25s;box-shadow:0 6px 20px rgba(37,211,102,0.2)}
+.wa-btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(37,211,102,0.35)}
+.wa-btn svg{width:18px;height:18px;fill:white;flex-shrink:0}
+.back-link{font-size:11px;color:var(--muted);text-decoration:none;
+  letter-spacing:0.1em;transition:color 0.2s}
+.back-link:hover{color:var(--gold)}
+
+@keyframes fup{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:580px){.cg.c2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<canvas id="cv"></canvas>
+<div id="prog"></div>
+<div id="burst"><div class="bsym">✦</div></div>
+<div id="nav"><button class="nbtn" onclick="goBack()">← Back</button></div>
+
+<!-- INTRO -->
+<div class="scene active" id="si">
+  <p class="i-lni">Lehem Network International</p>
+  <h1 class="i-title">Join a<br><em>Network</em></h1>
+  <p class="i-verse">"Two are better than one, because they have a good return for their labour."</p>
+  <p class="i-ref">— Ecclesiastes 4:9</p>
+  <button class="i-btn" onclick="begin()">I WANT TO JOIN &nbsp;→</button>
+</div>
+
+<!-- ETHOS -->
+<div class="scene" id="s-ethos" style="overflow-y:auto">
+  <div class="ethos-wrap">
+    <p class="ethos-tag">Before you proceed — read this</p>
+    <h2 class="ethos-heading">What an LNI Network actually is</h2>
+    <div class="ethos-body">
+      <p>An LNI Network is not a programme. It is not a club or a men's fellowship in the traditional sense. It is a <strong>band of men committed to being transformed together</strong> — spirit, mind, body, authority, and legacy.</p>
+      <p>Networks meet regularly. They pray together, drill together, hold each other accountable, and deploy together into their families, workplaces, and cities. The expectation is not attendance. The expectation is <strong>pursuit.</strong></p>
+      <p>When you join a network, you are not joining a list. You are entering a covenant with the men in that room. That means showing up when it is inconvenient. Being honest when it is uncomfortable. Growing when it is slow.</p>
+      <p>If you are looking for something casual, this is not it. If you are ready to be sharpened — <strong>welcome.</strong></p>
+    </div>
+    <div class="affirm-wrap" id="affirm" onclick="toggleAffirm()">
+      <div class="affirm-box">
+        <svg viewBox="0 0 10 8" fill="none" stroke="white" stroke-width="2">
+          <path d="M1 4l3 3 5-6"/>
+        </svg>
+      </div>
+      <p class="affirm-text">"I have read and understood what joining an LNI Network means. I am not looking for something casual. I am ready to be pursued and to pursue."</p>
+    </div>
+    <button class="ethos-continue" id="ethos-btn" onclick="next()">I Understand — Continue &nbsp;→</button>
+  </div>
+</div>
+
+<!-- Q1: NAME -->
+<div class="scene qs" id="s-name">
+  <p class="qctx">Let us begin</p>
+  <h2 class="qq">What is your first name?</h2>
+  <p class="qh">The name your network brothers will know you by.</p>
+  <div class="qiw">
+    <input class="qi" id="fn" type="text" placeholder="Your first name" autocomplete="off" autocapitalize="words">
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-name" onclick="next()">
+    That is my name
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-name">Press Enter to continue</span>
+</div>
+
+<!-- Q2: LOCATION -->
+<div class="scene qs" id="s-loc">
+  <p class="qctx">Where are you?</p>
+  <h2 class="qq" id="q-loc-h">Your city and country</h2>
+  <p class="qh">We will match you with the closest existing network.</p>
+  <div class="qiw" style="display:flex;flex-direction:column;gap:16px;max-width:440px;margin:0 auto">
+    <div style="position:relative">
+      <input class="qi" id="cy" type="text" placeholder="City" autocomplete="off">
+      <div class="qul"></div>
+    </div>
+    <div style="position:relative">
+      <input class="qi" id="co" type="text" placeholder="Country" autocomplete="off">
+      <div class="qul"></div>
+    </div>
+  </div>
+  <button class="qgo" id="bg-loc" onclick="next()">
+    This is where I am
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-loc">Press Enter to continue</span>
+</div>
+
+<!-- Q3: EMAIL -->
+<div class="scene qs" id="s-email">
+  <p class="qctx">Stay connected</p>
+  <h2 class="qq" id="q-email-h">Your email address</h2>
+  <p class="qh">We will send you network details and next steps.</p>
+  <div class="qiw">
+    <input class="qi" id="em" type="email" placeholder="your@email.com" autocomplete="off">
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-email" onclick="next()">
+    Continue
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-email">Press Enter to continue</span>
+</div>
+
+<!-- Q4: WHATSAPP -->
+<div class="scene qs" id="s-phone">
+  <p class="qctx">One more thing</p>
+  <h2 class="qq" id="q-phone-h">Your WhatsApp number</h2>
+  <p class="qh">Your network leader will reach out directly.</p>
+  <div class="qiw">
+    <input class="qi" id="ph" type="tel" placeholder="+234 800 000 0000" autocomplete="off">
+    <div class="qul"></div>
+  </div>
+  <button class="qgo" id="bg-phone" onclick="next()">
+    Continue
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+  </button>
+  <span class="etip" id="et-phone">Press Enter to continue</span>
+</div>
+
+<!-- Q5: WHAT ARE YOU LOOKING FOR -->
+<div class="scene qs" id="s-looking">
+  <p class="qctx">Help us understand you</p>
+  <h2 class="qq" id="q-look-h">What are you looking for in a network?</h2>
+  <p class="qh">Be honest. No wrong answers.</p>
+  <div class="cg c2" id="cg-look">
+    <div class="ch" onclick="pick(this,'looking','Accountability — someone to answer to')">
+      <div class="chm">Accountability</div>
+      <div class="chs">I need men who will hold me to my word</div>
+    </div>
+    <div class="ch" onclick="pick(this,'looking','Brotherhood — men who understand the journey')">
+      <div class="chm">Brotherhood</div>
+      <div class="chs">Men who are pursuing the same thing</div>
+    </div>
+    <div class="ch" onclick="pick(this,'looking','Discipleship — to be poured into')">
+      <div class="chm">Discipleship</div>
+      <div class="chs">I want to be taught and developed</div>
+    </div>
+    <div class="ch" onclick="pick(this,'looking','All of the above')">
+      <div class="chm">All of the above</div>
+      <div class="chs">I want the full experience</div>
+    </div>
+  </div>
+</div>
+
+<!-- SCRIPTURE INTERLUDE -->
+<div class="scene" id="ss1">
+  <div class="sw">
+    <p class="st">"As iron sharpens iron, so one man sharpens another."</p>
+    <p class="sr">— Proverbs 27:17</p>
+    <button class="sb" onclick="submitAndShow()">Submit My Interest &nbsp;→</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION -->
+<div class="scene" id="sc" style="overflow-y:auto;padding:30px 20px 50px">
+  <div class="conf-card">
+    <div class="conf-top">
+      <span class="conf-lni">LNI GLOBAL</span>
+      <span class="conf-type">NETWORK INTEREST</span>
+    </div>
+    <div class="conf-div"></div>
+    <div class="conf-title" id="c-title">Welcome, —</div>
+    <div class="conf-name" id="c-loc">—</div>
+    <div class="conf-msg">
+      Your interest has been received. A network leader in or near your city
+      will be in touch with you directly. In the meantime, join the LNI
+      WhatsApp community where the conversation is already happening.
+    </div>
+    <div class="conf-steps">
+      <div class="conf-step">
+        <span class="conf-step-num">01</span>
+        <span class="conf-step-text">Check your email — a confirmation has been sent to you</span>
+      </div>
+      <div class="conf-step">
+        <span class="conf-step-num">02</span>
+        <span class="conf-step-text">A network leader will contact you on WhatsApp within 48 hours</span>
+      </div>
+      <div class="conf-step">
+        <span class="conf-step-num">03</span>
+        <span class="conf-step-text">You will be invited to your first network gathering</span>
+      </div>
+    </div>
+  </div>
+  <div class="conf-actions">
+    <a href="YOUR_WHATSAPP_GROUP_LINK_HERE" target="_blank" class="wa-btn">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM12 0C5.373 0 0 5.373 0 12c0 2.123.554 4.118 1.528 5.845L.057 23.998l6.306-1.652A11.954 11.954 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818a9.818 9.818 0 01-5.007-1.371l-.36-.214-3.732.978 1-3.64-.235-.374A9.818 9.818 0 1112 21.818z"/></svg>
+      Join the LNI WhatsApp Community
+    </a>
+    <a href="https://lehemnetwork.org" class="back-link">Return to LNI Global →</a>
+  </div>
+</div>
+
+<!-- FIREBASE -->
+<script type="module">
+import{initializeApp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js';
+import{getFirestore,addDoc,collection,serverTimestamp}from'https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js';
+const cfg={
+  apiKey:"YOUR_API_KEY",
+  authDomain:"YOUR_PROJECT_ID.firebaseapp.com",
+  projectId:"YOUR_PROJECT_ID",
+  storageBucket:"YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId:"YOUR_SENDER_ID",
+  appId:"YOUR_APP_ID"
+};
+const app=initializeApp(cfg);
+const db=getFirestore(app);
+window._db=db;window._add=addDoc;window._col=collection;window._ts=serverTimestamp;
+</script>
+
+<script>
+// PARTICLES
+const cv=document.getElementById('cv'),cx=cv.getContext('2d');
+let W,H,pts=[];
+function rsz(){W=cv.width=innerWidth;H=cv.height=innerHeight}
+rsz();addEventListener('resize',rsz);
+function mkp(){return{x:Math.random()*W,y:H+5,s:Math.random()*1.2+0.2,sp:Math.random()*0.3+0.06,o:Math.random()*0.3+0.03,d:(Math.random()-0.5)*0.2}}
+for(let i=0;i<45;i++){const p=mkp();p.y=Math.random()*H;pts.push(p)}
+(function anim(){
+  cx.clearRect(0,0,W,H);
+  pts.forEach((p,i)=>{p.y-=p.sp;p.x+=p.d;p.o-=0.0002;
+    if(p.y<-5||p.o<=0)pts[i]=mkp();
+    cx.beginPath();cx.arc(p.x,p.y,p.s,0,Math.PI*2);
+    cx.fillStyle=`rgba(201,146,42,${p.o})`;cx.fill();
+  });requestAnimationFrame(anim);
+})();
+
+// SCENES
+const SCENES=['si','s-ethos','s-name','s-loc','s-email','s-phone','s-looking','ss1','sc'];
+const PDOTS=['s-name','s-loc','s-email','s-phone','s-looking'];
+let idx=0;
+const A={fn:'',city:'',country:'',email:'',phone:'',looking:''};
+
+const prog=document.getElementById('prog');
+PDOTS.forEach((_,i)=>{const d=document.createElement('div');d.className='pd';d.id='pd'+i;prog.appendChild(d)});
+
+function upChrome(){
+  const pi=PDOTS.indexOf(SCENES[idx]);
+  prog.classList.toggle('show',pi>=0);
+  document.getElementById('nav').classList.toggle('show',idx>1&&SCENES[idx]!=='sc');
+  PDOTS.forEach((_,i)=>{const d=document.getElementById('pd'+i);
+    d.classList.remove('now','done');
+    if(i<pi)d.classList.add('done');else if(i===pi)d.classList.add('now');
+  });
+}
+
+function goTo(i){
+  document.getElementById(SCENES[idx]).classList.remove('active');
+  idx=i;
+  document.getElementById(SCENES[idx]).classList.add('active');
+  upChrome();
+  setTimeout(()=>{const inp=document.querySelector(`#${SCENES[idx]} input`);if(inp)inp.focus();},550);
+}
+
+window.begin=()=>{burst();setTimeout(()=>goTo(1),400)};
+window.next=()=>{if(!validate())return;collect();burst();setTimeout(()=>goTo(idx+1),400)};
+window.goBack=()=>{if(idx>1)goTo(idx-1)};
+
+function burst(){
+  const b=document.getElementById('burst'),s=b.querySelector('.bsym');
+  b.style.opacity=1;s.classList.remove('go');void s.offsetWidth;s.classList.add('go');
+  setTimeout(()=>{b.style.opacity=0;s.classList.remove('go')},640);
+}
+
+function flash(m){
+  let el=document.getElementById('fl');
+  if(!el){el=document.createElement('div');el.id='fl';
+    el.style.cssText='position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(220,60,60,0.1);border:1px solid rgba(220,60,60,0.28);border-radius:6px;padding:10px 22px;color:#F08080;font-size:13px;z-index:300;transition:opacity 0.3s';
+    document.body.appendChild(el);}
+  el.textContent=m;el.style.opacity=1;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity=0,3200);
+}
+
+function validate(){
+  const s=SCENES[idx];
+  if(s==='s-ethos'&&!document.getElementById('affirm').classList.contains('checked'))
+    return flash('Please read and affirm the statement before continuing.'),false;
+  if(s==='s-name'&&!document.getElementById('fn').value.trim())return flash('Please enter your name.'),false;
+  if(s==='s-loc'&&(!document.getElementById('cy').value.trim()||!document.getElementById('co').value.trim()))
+    return flash('Please enter both your city and country.'),false;
+  if(s==='s-email'){const e=document.getElementById('em').value.trim();if(!e||!e.includes('@'))return flash('Please enter a valid email.'),false;}
+  if(s==='s-phone'&&!document.getElementById('ph').value.trim())return flash('Please enter your WhatsApp number.'),false;
+  return true;
+}
+
+function collect(){
+  const s=SCENES[idx];
+  if(s==='s-name'){
+    A.fn=document.getElementById('fn').value.trim();
+    document.getElementById('q-loc-h').textContent=`Where in the world are you, ${A.fn}?`;
+    document.getElementById('q-email-h').textContent=`Your email address, ${A.fn}`;
+    document.getElementById('q-phone-h').textContent=`Your WhatsApp number`;
+    document.getElementById('q-look-h').textContent=`${A.fn}, what are you looking for?`;
+  }
+  if(s==='s-loc'){A.city=document.getElementById('cy').value.trim();A.country=document.getElementById('co').value.trim();}
+  if(s==='s-email')A.email=document.getElementById('em').value.trim();
+  if(s==='s-phone')A.phone=document.getElementById('ph').value.trim();
+}
+
+window.pick=function(el,field,val){
+  el.closest('.cg').querySelectorAll('.ch').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');A[field]=val;
+  setTimeout(()=>window.next(),560);
+};
+
+window.toggleAffirm=function(){
+  const el=document.getElementById('affirm');
+  el.classList.toggle('checked');
+  document.getElementById('ethos-btn').classList.toggle('show',el.classList.contains('checked'));
+};
+
+window.submitAndShow=async function(){
+  document.getElementById('c-title').textContent=`Welcome, ${A.fn}`;
+  document.getElementById('c-loc').textContent=`${A.city}, ${A.country}`;
+  try{
+    await window._add(window._col(window._db,'network_interest'),{
+      ...A,type:'join',submittedAt:window._ts(),
+    });
+  }catch(e){console.warn(e);}
+  burst();setTimeout(()=>goTo(SCENES.indexOf('sc')),400);
+};
+
+// Wire inputs
+function wire(id,bid,tid){
+  const inp=document.getElementById(id);if(!inp)return;
+  inp.addEventListener('input',()=>{
+    const ok=inp.value.trim().length>0;
+    document.getElementById(bid)?.classList.toggle('on',ok);
+    document.getElementById(tid)?.classList.toggle('on',ok);
+  });
+}
+wire('fn','bg-name','et-name');
+wire('em','bg-email','et-email');
+wire('ph','bg-phone','et-phone');
+['cy','co'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',()=>{
+    const ok=document.getElementById('cy').value.trim()&&document.getElementById('co').value.trim();
+    document.getElementById('bg-loc')?.classList.toggle('on',!!ok);
+    document.getElementById('et-loc')?.classList.toggle('on',!!ok);
+  });
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey){
+    const ts=['s-name','s-loc','s-email','s-phone'];
+    if(ts.includes(SCENES[idx])){e.preventDefault();window.next();}
+  }
+});
+</script>
+</body>
+</html>
