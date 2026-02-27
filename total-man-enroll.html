@@ -1089,6 +1089,7 @@ window.submitAndShow=async function(){
       ...profileData,enrolledAt:window._ts(),
     });
   }catch(e){console.warn('Save:',e);}
+  addToBrevo({...profileData});
 
   // Save to localStorage so they can return
   try{localStorage.setItem('lni_tm_profile',JSON.stringify({...profileData,savedAt:new Date().toISOString()}));}catch(e){}
@@ -1254,6 +1255,37 @@ window.skipShare=function(){
   rw.style.opacity='0';
   setTimeout(()=>rw.style.display='none',400);
 };
+  // ── BREVO: add contact when enrollment saves ──
+async function addToBrevo(data) {
+  const BREVO_KEY = "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";
+  const LIST_ID = 3; // just the number, e.g. 3
+
+  try {
+    await fetch("https://api.brevo.com/v3/contacts", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "api-key": BREVO_KEY,
+      },
+      body: JSON.stringify({
+        email: data.email,
+        listIds: [LIST_ID],
+        updateEnabled: true,
+        attributes: {
+          FIRSTNAME: data.firstName,
+          CITY: data.city,
+          COUNTRY: data.country,
+          ENROLLNUMBER: data.enrollNumber,
+          PHASE: data.phasePull || "",
+          INTENTION: data.intention || "",
+        },
+      }),
+    });
+    console.log("✅ Added to Brevo");
+  } catch (err) {
+    console.warn("Brevo sync failed:", err.message);
+  }
+}
 </script>
-</body>
+  </body>
 </html>
