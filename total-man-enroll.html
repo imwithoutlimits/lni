@@ -1164,7 +1164,33 @@ function waitForFirebase(fn,attempts){
   if(window._getDocs&&window._query&&window._where){fn();}
   else if(attempts<20){setTimeout(()=>waitForFirebase(fn,attempts+1),300);}
 }
-waitForFirebase(checkViewParam);
+
+// Check localStorage for returning visitor BEFORE Firebase check
+function checkLocalStorage(){
+  try{
+    const saved=localStorage.getItem('lni_tm_profile');
+    if(!saved)return false;
+    const data=JSON.parse(saved);
+    if(!data.email||!data.enrollNumber)return false;
+    // Valid saved profile found — show it
+    SCENES.forEach(s=>document.getElementById(s).classList.remove('active'));
+    document.getElementById('sc').classList.add('active');
+    showProfile(data,false);
+    document.getElementById('prog').classList.remove('show');
+    document.getElementById('nav').classList.remove('show');
+    return true;
+  }catch(e){return false;}
+}
+
+// Run: URL param check first, then localStorage fallback
+waitForFirebase(()=>{
+  const hasUrlParam=new URLSearchParams(location.search).get('p');
+  if(hasUrlParam){
+    checkViewParam();
+  } else {
+    checkLocalStorage();
+  }
+});
 
 // 3D CARD
 const pc=document.getElementById('pc');
